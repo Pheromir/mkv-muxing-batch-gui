@@ -3,11 +3,12 @@ from PySide6 import QtGui
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QHBoxLayout, \
-    QGridLayout, QLabel, QPushButton, QCheckBox
+    QGridLayout, QLabel, QPushButton, QCheckBox, QComboBox
 from packages.Startup.Options import Options, save_options, get_names_list_of_presets
 from packages.Startup.GlobalFiles import InfoIconPath
 from packages.Startup.GlobalIcons import SettingIcon
 from packages.Startup.InitializeScreenResolution import screen_size
+from packages.Startup.PreDefined import AllSubtitleCompressions
 from packages.Tabs.SettingTab.Widgets.AboutButton import AboutButton
 from packages.Tabs.SettingTab.Widgets.DonateButton import DonateButton
 from packages.Tabs.SettingTab.Widgets.PresetTabComboBox import PresetTabComboBox
@@ -60,6 +61,26 @@ class SettingDialog(MyDialog):
         self.preset_tab_setting_layout.addStretch(200)
         self.preset_tab_setting_layout.addWidget(self.preset_tab_ask_on_start_check_box)
         self.preset_tab_setting_layout.setContentsMargins(0, 0, 0, 0)
+        self.mux_options_layout = QHBoxLayout()
+        self.source_subtitle_compression_label = QLabel("Compression of old subtitle tracks: ")
+        self.source_subtitle_compression_comboBox = QComboBox()
+        self.source_subtitle_compression_comboBox.addItems(AllSubtitleCompressions)
+        self.source_subtitle_compression_comboBox.setCurrentText(Options.Source_Subtitle_Compression)
+        self.source_subtitle_compression_comboBox.setToolTip(
+            "<nobr>Compression of the subtitle tracks taken from the source video<br>"
+            "<b>Default</b>: let mkvmerge decide (zlib for PGS/VobSub)<br>"
+            "<b>None</b>: store them uncompressed<br>"
+            "<b>Zlib</b>: always compress with zlib")
+        self.source_subtitle_compression_comboBox.setToolTipDuration(12000)
+        self.no_date_check_box = QCheckBox("Don't write muxing date")
+        self.no_date_check_box.setToolTip("<nobr>Mux with <b>--no-date</b> so the muxing date is not stored in the output file")
+        self.no_date_check_box.setToolTipDuration(12000)
+        self.no_date_check_box.setChecked(bool(Options.Mux_No_Date))
+        self.mux_options_layout.addWidget(self.source_subtitle_compression_label)
+        self.mux_options_layout.addWidget(self.source_subtitle_compression_comboBox)
+        self.mux_options_layout.addStretch(200)
+        self.mux_options_layout.addWidget(self.no_date_check_box)
+        self.mux_options_layout.setContentsMargins(0, 0, 0, 0)
         self.buttons_layout = QHBoxLayout()
         self.buttons_layout.addStretch(stretch=3)
         self.buttons_layout.addWidget(self.yes_button, stretch=2)
@@ -75,12 +96,14 @@ class SettingDialog(MyDialog):
         self.main_layout = QGridLayout()
         self.main_layout.addLayout(self.preset_tab_setting_layout, 0, 0, 1, 1)
         self.main_layout.addWidget(self.current_preset_tab, 1, 0, 1, 1)
-        self.main_layout.addLayout(self.setting_info_layout, 2, 0, 1, 1)
-        self.main_layout.addLayout(self.buttons_layout, 3, 0, 1, 1)
+        self.main_layout.addLayout(self.mux_options_layout, 2, 0, 1, 1)
+        self.main_layout.addLayout(self.setting_info_layout, 3, 0, 1, 1)
+        self.main_layout.addLayout(self.buttons_layout, 4, 0, 1, 1)
 
         self.main_layout.setRowStretch(1, 0)
         self.main_layout.setRowStretch(2, 0)
         self.main_layout.setRowStretch(3, 0)
+        self.main_layout.setRowStretch(4, 0)
         self.main_layout.setContentsMargins(10, 10, 10, 10)
         self.setLayout(self.main_layout)
 
@@ -129,6 +152,8 @@ class SettingDialog(MyDialog):
         Options.DefaultPresets = default_options.copy()
         Options.Choose_Preset_On_Startup = self.preset_tab_ask_on_start_check_box.isChecked()
         Options.FavoritePresetId = self.preset_tab_comboBox.activated_preset_id
+        Options.Source_Subtitle_Compression = self.source_subtitle_compression_comboBox.currentText()
+        Options.Mux_No_Date = self.no_date_check_box.isChecked()
         save_options()
 
     def change_current_preset_tab(self, tab_index):

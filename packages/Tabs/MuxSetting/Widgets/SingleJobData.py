@@ -14,7 +14,9 @@ class SingleJobData:
         self.subtitle_delay = []
         self.subtitle_set_default = []
         self.subtitle_set_forced = []
+        self.subtitle_set_commentary = []
         self.subtitle_set_at_top = []
+        self.subtitle_compression = []
 
         self.audio_found = False
         self.audio_name = []
@@ -24,6 +26,7 @@ class SingleJobData:
         self.audio_delay = []
         self.audio_set_default = []
         self.audio_set_forced = []
+        self.audio_set_commentary = []
         self.audio_set_at_top = []
 
         self.chapter_found = False

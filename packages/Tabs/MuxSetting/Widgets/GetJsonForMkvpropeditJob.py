@@ -68,6 +68,7 @@ class GetJsonForMkvpropeditJob:
         self.change_default_forced_subtitle_track_setting_source_video_command = ""
         self.change_default_forced_audio_track_setting_source_video_command = ""
         self.modify_old_videos_command = ""
+        self.video_track_setting_command = ""
         self.modify_old_audios_command = ""
         self.modify_old_subtitles_command = ""
         self.final_command = ""
@@ -84,6 +85,7 @@ class GetJsonForMkvpropeditJob:
         self.generate_info_file()
         self.setup_attachments_options()
         self.setup_chapter_options()
+        self.setup_video_track_setting()
         self.modify_old_videos_tracks()
         self.modify_old_subtitles_tracks()
         self.modify_old_audios_tracks()
@@ -164,6 +166,28 @@ class GetJsonForMkvpropeditJob:
                                                   check_for_system_backslash_path(self.job.chapter_name_absolute))
             elif GlobalSetting.CHAPTER_DISCARD_OLD:
                 self.chapter_attach_command = add_json_line("--chapters") + add_json_line("")
+
+    def setup_video_track_setting(self):
+        # track name / language from the video tab, "Modify Old Tracks" (added later) overrides them
+        video_command_list = []
+        for video_track in self.videos_track_json_info:
+            track_selector = "track:" + increase_id_by_one(video_track.id)
+            if not GlobalSetting.VIDEO_TRACK_NAME_KEEP_OLD:
+                video_command_list.append(add_json_line("--edit"))
+                video_command_list.append(add_json_line(track_selector))
+                if GlobalSetting.VIDEO_TRACK_NAME == "":
+                    video_command_list.append(add_json_line("--delete"))
+                    video_command_list.append(add_json_line("name"))
+                else:
+                    video_command_list.append(add_json_line("--set"))
+                    video_command_list.append(add_json_line("name=" + GlobalSetting.VIDEO_TRACK_NAME))
+            if GlobalSetting.VIDEO_LANGUAGE in ISO_639_2_LANGUAGES:
+                video_command_list.append(add_json_line("--edit"))
+                video_command_list.append(add_json_line(track_selector))
+                video_command_list.append(add_json_line("--set"))
+                video_command_list.append(
+                    add_json_line("language=" + ISO_639_2_LANGUAGES[GlobalSetting.VIDEO_LANGUAGE]))
+        self.video_track_setting_command = "".join(video_command_list)
 
     def modify_old_videos_tracks(self):
         if GlobalSetting.VIDEO_OLD_TRACKS_VIDEOS_MODIFIED_ACTIVATED:
@@ -707,6 +731,7 @@ class GetJsonForMkvpropeditJob:
         self.final_command += self.input_video_command
         self.final_command += self.change_default_forced_subtitle_track_setting_source_video_command
         self.final_command += self.change_default_forced_audio_track_setting_source_video_command
+        self.final_command += self.video_track_setting_command
         self.final_command += self.modify_old_videos_command
         self.final_command += self.modify_old_audios_command
         self.final_command += self.modify_old_subtitles_command

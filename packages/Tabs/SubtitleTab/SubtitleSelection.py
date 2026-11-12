@@ -4,16 +4,19 @@ from PySide6.QtWidgets import (
 )
 
 from packages.Startup.Options import Options
+from packages.Startup.PreDefined import ISO_639_2_LANGUAGES, AllSubtitlesExtensions, AllSubtitleCompressions
 from packages.Startup.SetupThems import get_dark_palette, get_light_palette
 from packages.Tabs.GlobalSetting import *
 from packages.Tabs.SubtitleTab.Widgets.MatchSubtitleLayout import MatchSubtitleLayout
 from packages.Tabs.SubtitleTab.Widgets.SubtitleClearButton import SubtitleClearButton
+from packages.Tabs.SubtitleTab.Widgets.SubtitleCompressionComboBox import SubtitleCompressionComboBox
 from packages.Tabs.SubtitleTab.Widgets.SubtitleDelayDoubleSpinBox import SubtitleDelayDoubleSpinBox
 from packages.Tabs.SubtitleTab.Widgets.SubtitleExtensionsCheckableComboBox import SubtitleExtensionsCheckableComboBox
 from packages.Tabs.SubtitleTab.Widgets.SubtitleLanguageComboBox import SubtitleLanguageComboBox
 from packages.Tabs.SubtitleTab.Widgets.SubtitleMuxOrderWidget import SubtitleMuxOrderWidget
 from packages.Tabs.SubtitleTab.Widgets.SubtitleSetDefaultCheckBox import SubtitleSetDefaultCheckBox
 from packages.Tabs.SubtitleTab.Widgets.SubtitleSetForcedCheckBox import SubtitleSetForcedCheckBox
+from packages.Tabs.SubtitleTab.Widgets.SubtitleSetCommentaryCheckBox import SubtitleSetCommentaryCheckBox
 from packages.Tabs.SubtitleTab.Widgets.SubtitleSourceButton import SubtitleSourceButton
 from packages.Tabs.SubtitleTab.Widgets.SubtitleSourceLineEdit import SubtitleSourceLineEdit
 from packages.Tabs.SubtitleTab.Widgets.SubtitleTrackNameLineEdit import SubtitleTrackNameLineEdit
@@ -43,6 +46,7 @@ class SubtitleSelectionSetting(QGroupBox):
         self.subtitle_language_label = QLabel("Language:")
         self.subtitle_extension_label = QLabel("Subtitle Extension:")
         self.subtitle_delay_label = QLabel("Delay:")
+        self.subtitle_compression_label = QLabel("Compression:")
         self.subtitle_source_lineEdit = SubtitleSourceLineEdit()
         self.subtitle_source_button = SubtitleSourceButton()
         self.subtitle_clear_button = SubtitleClearButton()
@@ -51,7 +55,9 @@ class SubtitleSelectionSetting(QGroupBox):
         self.subtitle_language_comboBox = SubtitleLanguageComboBox(self.tab_index)
         self.subtitle_track_name_lineEdit = SubtitleTrackNameLineEdit(self.tab_index)
         self.subtitle_delay_spin = SubtitleDelayDoubleSpinBox(self.tab_index)
+        self.subtitle_compression_comboBox = SubtitleCompressionComboBox(self.tab_index)
         self.subtitle_set_forced_checkBox = SubtitleSetForcedCheckBox(self.tab_index)
+        self.subtitle_set_commentary_checkBox = SubtitleSetCommentaryCheckBox(self.tab_index)
         self.subtitle_set_default_checkBox = SubtitleSetDefaultCheckBox(self.tab_index)
         self.subtitle_mux_order_widget = SubtitleMuxOrderWidget(self.tab_index)
         self.subtitle_match_layout = MatchSubtitleLayout(parent=self, tab_index=self.tab_index)
@@ -92,6 +98,7 @@ class SubtitleSelectionSetting(QGroupBox):
         GlobalSetting.SUBTITLE_TAB_ENABLED[self.tab_index] = False
         GlobalSetting.SUBTITLE_SET_DEFAULT[self.tab_index] = False
         GlobalSetting.SUBTITLE_SET_FORCED[self.tab_index] = False
+        GlobalSetting.SUBTITLE_SET_COMMENTARY[self.tab_index] = False
         GlobalSetting.SUBTITLE_SET_ORDER[self.tab_index] = -1
         GlobalSetting.SUBTITLE_LANGUAGE[self.tab_index] = Options.CurrentPreset.Default_Subtitle_Language
 
@@ -115,6 +122,7 @@ class SubtitleSelectionSetting(QGroupBox):
     def setup_subtitle_check_default_forced_layout(self):
         self.subtitle_set_default_forced_layout.addWidget(self.subtitle_set_default_checkBox, stretch=0)
         self.subtitle_set_default_forced_layout.addWidget(self.subtitle_set_forced_checkBox, stretch=0)
+        self.subtitle_set_default_forced_layout.addWidget(self.subtitle_set_commentary_checkBox, stretch=0)
         self.subtitle_set_default_forced_layout.addWidget(self.subtitle_mux_order_widget, stretch=3)
 
     def setup_subtitle_options_layout(self):
@@ -124,6 +132,8 @@ class SubtitleSelectionSetting(QGroupBox):
         self.subtitle_options_layout.addWidget(self.subtitle_track_name_lineEdit, 2)
         self.subtitle_options_layout.addWidget(self.subtitle_delay_label)
         self.subtitle_options_layout.addWidget(self.subtitle_delay_spin)
+        self.subtitle_options_layout.addWidget(self.subtitle_compression_label)
+        self.subtitle_options_layout.addWidget(self.subtitle_compression_comboBox)
         self.subtitle_options_layout.addLayout(self.subtitle_set_default_forced_layout, 7)
         self.subtitle_options_layout.addStretch()
 
@@ -269,16 +279,19 @@ class SubtitleSelectionSetting(QGroupBox):
             self.subtitle_extensions_comboBox.setData(self.current_subtitle_extensions)
             self.subtitle_track_name_lineEdit.setText("")
             self.subtitle_set_forced_checkBox.setChecked(False)
+            self.subtitle_set_commentary_checkBox.setChecked(False)
             self.subtitle_set_default_checkBox.setChecked(False)
             self.is_drag_and_drop = False
             self.subtitle_source_lineEdit.set_is_drag_and_drop(False)
             self.subtitle_delay_spin.setValue(0)
+            self.subtitle_compression_comboBox.reset_to_default()
             GlobalSetting.SUBTITLE_FILES_LIST[self.tab_index] = []
             GlobalSetting.SUBTITLE_FILES_ABSOLUTE_PATH_LIST[self.tab_index] = []
             GlobalSetting.SUBTITLE_TRACK_NAME[self.tab_index] = ""
             GlobalSetting.SUBTITLE_DELAY[self.tab_index] = 0.0
             GlobalSetting.SUBTITLE_SET_DEFAULT[self.tab_index] = False
             GlobalSetting.SUBTITLE_SET_FORCED[self.tab_index] = False
+            GlobalSetting.SUBTITLE_SET_COMMENTARY[self.tab_index] = False
             GlobalSetting.SUBTITLE_SET_ORDER[self.tab_index] = -1
             GlobalSetting.SUBTITLE_TAB_ENABLED[self.tab_index] = False
             GlobalSetting.SUBTITLE_LANGUAGE[self.tab_index] = ""
@@ -320,6 +333,7 @@ class SubtitleSelectionSetting(QGroupBox):
     def update_subtitle_set_default_forced_state(self):
         self.subtitle_set_default_checkBox.update_check_state()
         self.subtitle_set_forced_checkBox.update_check_state()
+        self.subtitle_set_commentary_checkBox.update_check_state()
 
     def disable_editable_widgets(self):
         self.subtitle_source_lineEdit.setEnabled(False)
@@ -328,8 +342,10 @@ class SubtitleSelectionSetting(QGroupBox):
         self.subtitle_language_comboBox.setEnabled(False)
         self.subtitle_track_name_lineEdit.setEnabled(False)
         self.subtitle_delay_spin.setEnabled(False)
+        self.subtitle_compression_comboBox.setEnabled(False)
         self.subtitle_set_default_checkBox.setEnabled(False)
         self.subtitle_set_forced_checkBox.setEnabled(False)
+        self.subtitle_set_commentary_checkBox.setEnabled(False)
         self.setCheckable(False)
         self.subtitle_clear_button.setEnabled(False)
         self.subtitle_mux_order_widget.setEnabled(False)
@@ -343,8 +359,10 @@ class SubtitleSelectionSetting(QGroupBox):
         self.subtitle_language_comboBox.setEnabled(True)
         self.subtitle_track_name_lineEdit.setEnabled(True)
         self.subtitle_delay_spin.setEnabled(True)
+        self.subtitle_compression_comboBox.setEnabled(True)
         self.subtitle_set_default_checkBox.setEnabled(True)
         self.subtitle_set_forced_checkBox.setEnabled(True)
+        self.subtitle_set_commentary_checkBox.setEnabled(True)
         self.subtitle_clear_button.setEnabled(True)
         self.subtitle_mux_order_widget.setEnabled(True)
         if not self.is_drag_and_drop:
@@ -427,6 +445,47 @@ class SubtitleSelectionSetting(QGroupBox):
         self.subtitle_language_comboBox.set_current_index()
         self.subtitle_extensions_comboBox.set_current_extensions()
         self.set_default_directory()
+
+    def get_track_preset(self):
+        # every setting of this tab except delay and source files/folder
+        return {
+            "language": self.subtitle_language_comboBox.currentText(),
+            "track_name": self.subtitle_track_name_lineEdit.text(),
+            "set_default": bool(GlobalSetting.SUBTITLE_SET_DEFAULT[self.tab_index]),
+            "set_forced": bool(GlobalSetting.SUBTITLE_SET_FORCED[self.tab_index]),
+            "set_commentary": bool(GlobalSetting.SUBTITLE_SET_COMMENTARY[self.tab_index]),
+            "extensions": self.subtitle_extensions_comboBox.currentData(),
+            "compression": GlobalSetting.SUBTITLE_COMPRESSION[self.tab_index],
+        }
+
+    def apply_track_preset(self, preset: dict):
+        language = preset.get("language", "")
+        if language in ISO_639_2_LANGUAGES:
+            if self.subtitle_language_comboBox.findText(language) == -1:
+                self.subtitle_language_comboBox.addItem(language)
+            self.subtitle_language_comboBox.setCurrentText(language)
+            GlobalSetting.SUBTITLE_LANGUAGE[self.tab_index] = language
+        if "track_name" in preset:
+            self.subtitle_track_name_lineEdit.setText(str(preset["track_name"]))
+            GlobalSetting.SUBTITLE_TRACK_NAME[self.tab_index] = str(preset["track_name"])
+        if "set_default" in preset and not GlobalSetting.SUBTITLE_SET_DEFAULT_DISABLED:
+            GlobalSetting.SUBTITLE_SET_DEFAULT[self.tab_index] = bool(preset["set_default"])
+            self.subtitle_set_default_checkBox.setChecked(bool(preset["set_default"]))
+        if "set_forced" in preset and not GlobalSetting.SUBTITLE_SET_FORCED_DISABLED:
+            GlobalSetting.SUBTITLE_SET_FORCED[self.tab_index] = bool(preset["set_forced"])
+            self.subtitle_set_forced_checkBox.setChecked(bool(preset["set_forced"]))
+        if "set_commentary" in preset:
+            GlobalSetting.SUBTITLE_SET_COMMENTARY[self.tab_index] = bool(preset["set_commentary"])
+            self.subtitle_set_commentary_checkBox.setChecked(bool(preset["set_commentary"]))
+        if preset.get("compression", "") in AllSubtitleCompressions:
+            self.subtitle_compression_comboBox.setCurrentText(preset["compression"])
+            GlobalSetting.SUBTITLE_COMPRESSION[self.tab_index] = preset["compression"]
+        extensions = [extension for extension in preset.get("extensions", []) if extension in AllSubtitlesExtensions]
+        if len(extensions) > 0:
+            self.subtitle_extensions_comboBox.setData(extensions)
+            self.subtitle_extensions_comboBox.updateText()
+            # reloads the files list (asks first if files are already loaded)
+            self.subtitle_extensions_comboBox.check_extensions_changes()
 
     def update_theme_mode_state(self):
         if Options.Dark_Mode:

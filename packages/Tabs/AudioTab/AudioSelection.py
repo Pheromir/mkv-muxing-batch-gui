@@ -4,6 +4,7 @@ from PySide6.QtWidgets import (
 )
 
 from packages.Startup.Options import Options
+from packages.Startup.PreDefined import ISO_639_2_LANGUAGES, AllAudiosExtensions
 from packages.Startup.SetupThems import get_dark_palette, get_light_palette
 from packages.Tabs.AudioTab.Widgets.AudioClearButton import AudioClearButton
 from packages.Tabs.AudioTab.Widgets.AudioDelayDoubleSpinBox import AudioDelayDoubleSpinBox
@@ -12,6 +13,7 @@ from packages.Tabs.AudioTab.Widgets.AudioLanguageComboBox import AudioLanguageCo
 from packages.Tabs.AudioTab.Widgets.AudioMuxOrderWidget import AudioMuxOrderWidget
 from packages.Tabs.AudioTab.Widgets.AudioSetDefaultCheckBox import AudioSetDefaultCheckBox
 from packages.Tabs.AudioTab.Widgets.AudioSetForcedCheckBox import AudioSetForcedCheckBox
+from packages.Tabs.AudioTab.Widgets.AudioSetCommentaryCheckBox import AudioSetCommentaryCheckBox
 from packages.Tabs.AudioTab.Widgets.AudioSourceButton import AudioSourceButton
 from packages.Tabs.AudioTab.Widgets.AudioSourceLineEdit import AudioSourceLineEdit
 from packages.Tabs.AudioTab.Widgets.AudioTrackNameLineEdit import AudioTrackNameLineEdit
@@ -52,7 +54,10 @@ class AudioSelectionSetting(QGroupBox):
         self.audio_track_name_lineEdit = AudioTrackNameLineEdit(self.tab_index)
         self.audio_delay_spin = AudioDelayDoubleSpinBox(self.tab_index)
         self.audio_set_forced_checkBox = AudioSetForcedCheckBox(self.tab_index)
+        self.audio_set_commentary_checkBox = AudioSetCommentaryCheckBox(self.tab_index)
         self.audio_set_default_checkBox = AudioSetDefaultCheckBox(self.tab_index)
+        # new audio tracks are default tracks unless "make this audio default" is active
+        self.audio_set_default_checkBox.update_check_state()
         self.audio_mux_order_widget = AudioMuxOrderWidget(self.tab_index)
         self.audio_match_layout = MatchAudioLayout(parent=self, tab_index=self.tab_index)
         self.audio_options_layout = QHBoxLayout()
@@ -90,8 +95,9 @@ class AudioSelectionSetting(QGroupBox):
         GlobalSetting.AUDIO_TRACK_NAME[self.tab_index] = ""
         GlobalSetting.AUDIO_DELAY[self.tab_index] = 0.0
         GlobalSetting.AUDIO_TAB_ENABLED[self.tab_index] = False
-        GlobalSetting.AUDIO_SET_DEFAULT[self.tab_index] = False
+        GlobalSetting.AUDIO_SET_DEFAULT[self.tab_index] = not GlobalSetting.AUDIO_SET_DEFAULT_DISABLED
         GlobalSetting.AUDIO_SET_FORCED[self.tab_index] = False
+        GlobalSetting.AUDIO_SET_COMMENTARY[self.tab_index] = False
         GlobalSetting.AUDIO_SET_ORDER[self.tab_index] = -1
         GlobalSetting.AUDIO_LANGUAGE[self.tab_index] = Options.CurrentPreset.Default_Audio_Language
 
@@ -115,6 +121,7 @@ class AudioSelectionSetting(QGroupBox):
     def setup_audio_check_default_forced_layout(self):
         self.audio_set_default_forced_layout.addWidget(self.audio_set_default_checkBox, stretch=0)
         self.audio_set_default_forced_layout.addWidget(self.audio_set_forced_checkBox, stretch=0)
+        self.audio_set_default_forced_layout.addWidget(self.audio_set_commentary_checkBox, stretch=0)
         self.audio_set_default_forced_layout.addWidget(self.audio_mux_order_widget, stretch=3)
 
     def setup_audio_options_layout(self):
@@ -269,7 +276,8 @@ class AudioSelectionSetting(QGroupBox):
             self.audio_extensions_comboBox.setData(self.current_audio_extensions)
             self.audio_track_name_lineEdit.setText("")
             self.audio_set_forced_checkBox.setChecked(False)
-            self.audio_set_default_checkBox.setChecked(False)
+            self.audio_set_commentary_checkBox.setChecked(False)
+            self.audio_set_default_checkBox.setChecked(not GlobalSetting.AUDIO_SET_DEFAULT_DISABLED)
             self.is_drag_and_drop = False
             self.audio_source_lineEdit.set_is_drag_and_drop(False)
             self.audio_delay_spin.setValue(0)
@@ -277,8 +285,9 @@ class AudioSelectionSetting(QGroupBox):
             GlobalSetting.AUDIO_FILES_ABSOLUTE_PATH_LIST[self.tab_index] = []
             GlobalSetting.AUDIO_TRACK_NAME[self.tab_index] = ""
             GlobalSetting.AUDIO_DELAY[self.tab_index] = 0.0
-            GlobalSetting.AUDIO_SET_DEFAULT[self.tab_index] = False
+            GlobalSetting.AUDIO_SET_DEFAULT[self.tab_index] = not GlobalSetting.AUDIO_SET_DEFAULT_DISABLED
             GlobalSetting.AUDIO_SET_FORCED[self.tab_index] = False
+            GlobalSetting.AUDIO_SET_COMMENTARY[self.tab_index] = False
             GlobalSetting.AUDIO_SET_ORDER[self.tab_index] = -1
             GlobalSetting.AUDIO_TAB_ENABLED[self.tab_index] = False
             GlobalSetting.AUDIO_LANGUAGE[self.tab_index] = ""
@@ -320,6 +329,7 @@ class AudioSelectionSetting(QGroupBox):
     def update_audio_set_default_forced_state(self):
         self.audio_set_default_checkBox.update_check_state()
         self.audio_set_forced_checkBox.update_check_state()
+        self.audio_set_commentary_checkBox.update_check_state()
 
     def disable_editable_widgets(self):
         self.audio_source_lineEdit.setEnabled(False)
@@ -330,6 +340,7 @@ class AudioSelectionSetting(QGroupBox):
         self.audio_delay_spin.setEnabled(False)
         self.audio_set_default_checkBox.setEnabled(False)
         self.audio_set_forced_checkBox.setEnabled(False)
+        self.audio_set_commentary_checkBox.setEnabled(False)
         self.setCheckable(False)
         self.audio_clear_button.setEnabled(False)
         self.audio_mux_order_widget.setEnabled(False)
@@ -345,6 +356,7 @@ class AudioSelectionSetting(QGroupBox):
         self.audio_delay_spin.setEnabled(True)
         self.audio_set_default_checkBox.setEnabled(True)
         self.audio_set_forced_checkBox.setEnabled(True)
+        self.audio_set_commentary_checkBox.setEnabled(True)
         self.audio_clear_button.setEnabled(True)
         self.audio_mux_order_widget.setEnabled(True)
         if not self.is_drag_and_drop:
@@ -427,6 +439,43 @@ class AudioSelectionSetting(QGroupBox):
         self.audio_language_comboBox.set_current_index()
         self.audio_extensions_comboBox.set_current_extensions()
         self.set_default_directory()
+
+    def get_track_preset(self):
+        # every setting of this tab except delay and source files/folder
+        return {
+            "language": self.audio_language_comboBox.currentText(),
+            "track_name": self.audio_track_name_lineEdit.text(),
+            "set_default": bool(GlobalSetting.AUDIO_SET_DEFAULT[self.tab_index]),
+            "set_forced": bool(GlobalSetting.AUDIO_SET_FORCED[self.tab_index]),
+            "set_commentary": bool(GlobalSetting.AUDIO_SET_COMMENTARY[self.tab_index]),
+            "extensions": self.audio_extensions_comboBox.currentData(),
+        }
+
+    def apply_track_preset(self, preset: dict):
+        language = preset.get("language", "")
+        if language in ISO_639_2_LANGUAGES:
+            if self.audio_language_comboBox.findText(language) == -1:
+                self.audio_language_comboBox.addItem(language)
+            self.audio_language_comboBox.setCurrentText(language)
+            GlobalSetting.AUDIO_LANGUAGE[self.tab_index] = language
+        if "track_name" in preset:
+            self.audio_track_name_lineEdit.setText(str(preset["track_name"]))
+            GlobalSetting.AUDIO_TRACK_NAME[self.tab_index] = str(preset["track_name"])
+        if "set_default" in preset and not GlobalSetting.AUDIO_SET_DEFAULT_DISABLED:
+            GlobalSetting.AUDIO_SET_DEFAULT[self.tab_index] = bool(preset["set_default"])
+            self.audio_set_default_checkBox.setChecked(bool(preset["set_default"]))
+        if "set_forced" in preset and not GlobalSetting.AUDIO_SET_FORCED_DISABLED:
+            GlobalSetting.AUDIO_SET_FORCED[self.tab_index] = bool(preset["set_forced"])
+            self.audio_set_forced_checkBox.setChecked(bool(preset["set_forced"]))
+        if "set_commentary" in preset:
+            GlobalSetting.AUDIO_SET_COMMENTARY[self.tab_index] = bool(preset["set_commentary"])
+            self.audio_set_commentary_checkBox.setChecked(bool(preset["set_commentary"]))
+        extensions = [extension for extension in preset.get("extensions", []) if extension in AllAudiosExtensions]
+        if len(extensions) > 0:
+            self.audio_extensions_comboBox.setData(extensions)
+            self.audio_extensions_comboBox.updateText()
+            # reloads the files list (asks first if files are already loaded)
+            self.audio_extensions_comboBox.check_extensions_changes()
 
     def update_theme_mode_state(self):
         if Options.Dark_Mode:

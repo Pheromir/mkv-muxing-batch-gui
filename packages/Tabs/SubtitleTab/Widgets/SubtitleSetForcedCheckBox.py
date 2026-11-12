@@ -13,12 +13,8 @@ class SubtitleSetForcedCheckBox(QCheckBox):
         self.stateChanged.connect(self.change_global_subtitle_set_forced)
 
     def change_global_subtitle_set_forced(self):
+        # unlike "default", several subtitle tracks may carry the forced flag at the same time
         GlobalSetting.SUBTITLE_SET_FORCED[self.tab_index] = self.checkState() == Qt.CheckState.Checked
-        if self.checkState() == Qt.CheckState.Checked:
-            for i in GlobalSetting.SUBTITLE_SET_FORCED.keys():
-
-                if i != self.tab_index:
-                    GlobalSetting.SUBTITLE_SET_FORCED[i] = False
 
     def update_check_state(self):
         self.setChecked(bool(GlobalSetting.SUBTITLE_SET_FORCED[self.tab_index]))

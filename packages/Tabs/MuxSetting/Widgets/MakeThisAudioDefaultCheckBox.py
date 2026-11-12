@@ -41,14 +41,14 @@ class MakeThisAudioDefaultCheckBox(QCheckBox):
 
     def state_changed(self, state):
         if not self.stop_check:
-            audio_to_be_default = -1
-            audio_to_be_forced = -1
+            audio_to_be_default = []
+            audio_to_be_forced = []
             for i in GlobalSetting.AUDIO_SET_DEFAULT.keys():
                 if GlobalSetting.AUDIO_SET_DEFAULT[i]:
-                    audio_to_be_default = i
+                    audio_to_be_default.append(i)
             for i in GlobalSetting.AUDIO_SET_FORCED.keys():
                 if GlobalSetting.AUDIO_SET_FORCED[i]:
-                    audio_to_be_forced = i
+                    audio_to_be_forced.append(i)
 
             if state == Qt.CheckState.Unchecked:
                 self.disable_combo_box.emit(True)
@@ -60,16 +60,18 @@ class MakeThisAudioDefaultCheckBox(QCheckBox):
                 GlobalSetting.MUX_SETTING_MAKE_THIS_AUDIO_DEFAULT_TRACK = ""
             else:
                 if state == Qt.CheckState.Checked.value:
-                    if audio_to_be_default != -1 or audio_to_be_forced != -1:
+                    if len(audio_to_be_default) > 0 or len(audio_to_be_forced) > 0:
                         confirm_dialog = ConfirmCheckMakeThisTrackDefaultWithUnCheckOption(track_type="audio" ,parent=self)
                         confirm_dialog.execute()
                         if confirm_dialog.result == "Yes":
                             self.disable_combo_box.emit(False)
                             self.set_tool_tip_hint_full_check()
-                            if audio_to_be_default != -1:
-                                GlobalSetting.AUDIO_SET_DEFAULT[audio_to_be_default] = False
-                            if audio_to_be_forced != -1:
-                                GlobalSetting.AUDIO_SET_FORCED[audio_to_be_forced] = False
+                            if len(audio_to_be_default) > 0:
+                                for j in audio_to_be_default:
+                                    GlobalSetting.AUDIO_SET_DEFAULT[j] = False
+                            if len(audio_to_be_forced) > 0:
+                                for j in audio_to_be_forced:
+                                    GlobalSetting.AUDIO_SET_FORCED[j] = False
                             GlobalSetting.AUDIO_SET_DEFAULT_DISABLED = True
                             GlobalSetting.AUDIO_SET_FORCED_DISABLED = True
                             GlobalSetting.MUX_SETTING_MAKE_THIS_AUDIO_DEFAULT_SEMI_ENABLED = False
@@ -79,8 +81,9 @@ class MakeThisAudioDefaultCheckBox(QCheckBox):
                             self.disable_combo_box.emit(False)
                             self.setCheckState(Qt.CheckState.PartiallyChecked)
                             self.set_tool_tip_hint_partially_check()
-                            if audio_to_be_default != -1:
-                                GlobalSetting.AUDIO_SET_DEFAULT[audio_to_be_default] = False
+                            if len(audio_to_be_default) > 0:
+                                for j in audio_to_be_default:
+                                    GlobalSetting.AUDIO_SET_DEFAULT[j] = False
                             GlobalSetting.AUDIO_SET_DEFAULT_DISABLED = True
                             GlobalSetting.AUDIO_SET_FORCED_DISABLED = False
                             GlobalSetting.MUX_SETTING_MAKE_THIS_AUDIO_DEFAULT_SEMI_ENABLED = True
@@ -100,23 +103,26 @@ class MakeThisAudioDefaultCheckBox(QCheckBox):
                     else:
                         self.disable_combo_box.emit(False)
                         self.set_tool_tip_hint_full_check()
-                        if audio_to_be_default != -1:
-                            GlobalSetting.AUDIO_SET_DEFAULT[audio_to_be_default] = False
-                        if audio_to_be_forced != -1:
-                            GlobalSetting.AUDIO_SET_FORCED[audio_to_be_forced] = False
+                        if len(audio_to_be_default) > 0:
+                            for j in audio_to_be_default:
+                                GlobalSetting.AUDIO_SET_DEFAULT[j] = False
+                        if len(audio_to_be_forced) > 0:
+                            for j in audio_to_be_forced:
+                                GlobalSetting.AUDIO_SET_FORCED[j] = False
                         GlobalSetting.AUDIO_SET_DEFAULT_DISABLED = True
                         GlobalSetting.AUDIO_SET_FORCED_DISABLED = True
                         GlobalSetting.MUX_SETTING_MAKE_THIS_AUDIO_DEFAULT_SEMI_ENABLED = False
                         GlobalSetting.MUX_SETTING_MAKE_THIS_AUDIO_DEFAULT_FULL_ENABLED = True
                 else:
-                    if audio_to_be_default != -1:
+                    if len(audio_to_be_default) > 0:
                         confirm_dialog = ConfirmCheckMakeThisTrackDefault(track_type="audio", parent=self)
                         confirm_dialog.execute()
                         if confirm_dialog.result == "Yes":
                             self.disable_combo_box.emit(False)
                             self.set_tool_tip_hint_partially_check()
-                            if audio_to_be_default != -1:
-                                GlobalSetting.AUDIO_SET_DEFAULT[audio_to_be_default] = False
+                            if len(audio_to_be_default) > 0:
+                                for j in audio_to_be_default:
+                                    GlobalSetting.AUDIO_SET_DEFAULT[j] = False
                             GlobalSetting.AUDIO_SET_DEFAULT_DISABLED = True
                             GlobalSetting.AUDIO_SET_FORCED_DISABLED = False
                             GlobalSetting.MUX_SETTING_MAKE_THIS_AUDIO_DEFAULT_SEMI_ENABLED = True
@@ -132,8 +138,9 @@ class MakeThisAudioDefaultCheckBox(QCheckBox):
                     else:
                         self.disable_combo_box.emit(False)
                         self.set_tool_tip_hint_partially_check()
-                        if audio_to_be_default != -1:
-                            GlobalSetting.AUDIO_SET_DEFAULT[audio_to_be_default] = False
+                        if len(audio_to_be_default) > 0:
+                            for j in audio_to_be_default:
+                                GlobalSetting.AUDIO_SET_DEFAULT[j] = False
                         GlobalSetting.AUDIO_SET_DEFAULT_DISABLED = True
                         GlobalSetting.AUDIO_SET_FORCED_DISABLED = False
                         GlobalSetting.MUX_SETTING_MAKE_THIS_AUDIO_DEFAULT_SEMI_ENABLED = True

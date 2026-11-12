@@ -335,7 +335,9 @@ class JobQueueTable(TableWidget):
                 new_job.subtitle_track_name.append(GlobalSetting.SUBTITLE_TRACK_NAME[i])
                 new_job.subtitle_set_default.append(GlobalSetting.SUBTITLE_SET_DEFAULT[i])
                 new_job.subtitle_set_forced.append(GlobalSetting.SUBTITLE_SET_FORCED[i])
+                new_job.subtitle_set_commentary.append(GlobalSetting.SUBTITLE_SET_COMMENTARY[i])
                 new_job.subtitle_set_at_top.append(GlobalSetting.SUBTITLE_SET_ORDER[i])
+                new_job.subtitle_compression.append(GlobalSetting.SUBTITLE_COMPRESSION[i])
 
                 subtitles_count += 1
         if subtitles_count == 1:
@@ -371,6 +373,7 @@ class JobQueueTable(TableWidget):
                 new_job.audio_track_name.append(GlobalSetting.AUDIO_TRACK_NAME[i])
                 new_job.audio_set_default.append(GlobalSetting.AUDIO_SET_DEFAULT[i])
                 new_job.audio_set_forced.append(GlobalSetting.AUDIO_SET_FORCED[i])
+                new_job.audio_set_commentary.append(GlobalSetting.AUDIO_SET_COMMENTARY[i])
                 new_job.audio_set_at_top.append(GlobalSetting.AUDIO_SET_ORDER[i])
                 audios_count += 1
         if audios_count == 1:

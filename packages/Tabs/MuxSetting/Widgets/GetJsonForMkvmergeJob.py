@@ -8,7 +8,8 @@ from platform import platform
 from sys import platform
 
 from packages.Startup import GlobalFiles
-from packages.Startup.PreDefined import ISO_639_2_LANGUAGES
+from packages.Startup.Options import Options
+from packages.Startup.PreDefined import ISO_639_2_LANGUAGES, SubtitleCompressionMkvmergeValues
 from packages.Tabs.GlobalSetting import GlobalSetting
 from packages.Tabs.MuxSetting.Widgets.SingleJobData import SingleJobData
 from packages.Widgets.SingleAttachmentData import SingleAttachmentData
@@ -55,6 +56,10 @@ def change_file_extension_to_mkv_with_random_suffix(file_name):
     return new_file_name_with_mkv_extension
 
 
+def get_mkvmerge_compression_value(compression):
+    return SubtitleCompressionMkvmergeValues.get(compression, "")
+
+
 def check_type_of_track_chosen(track):
     value = ""
     left_bracket_index = track.find("[")
@@ -81,9 +86,12 @@ class GetJsonForMkvmergeJob:
         self.new_subtitle_append_command = ""
         self.new_audio_append_command = ""
         self.old_video_append_command = ""
+        self.video_track_setting_command = ""
         self.old_audio_append_command = ""
         self.old_subtitle_append_command = ""
         self.discard_old_attachments_command = ""
+        self.discard_old_chapters_command = ""
+        self.source_subtitle_compression_command = ""
         self.change_default_forced_subtitle_track_setting_source_video_command = ""
         self.change_default_forced_audio_track_setting_source_video_command = ""
         self.specify_video_track_source_video_command = ""
@@ -107,6 +115,7 @@ class GetJsonForMkvmergeJob:
         self.setup_video_track_order()
         self.setup_attachments_options()
         self.setup_chapter_options()
+        self.setup_video_track_setting()
         self.setup_old_video_tracks_options()
         self.setup_new_audio_tracks_options()
         self.setup_old_audio_tracks_options()
@@ -114,6 +123,7 @@ class GetJsonForMkvmergeJob:
         self.setup_new_subtitle_tracks_options()
         self.setup_old_subtitle_tracks_options()
         self.setup_subtitle_track_order()
+        self.setup_source_subtitle_compression()
         self.setup_which_old_videos_to_keep()
         self.setup_which_old_subtitles_to_keep()
         self.setup_which_old_audios_to_keep()
@@ -186,12 +196,13 @@ class GetJsonForMkvmergeJob:
 
     def setup_chapter_options(self):
         if GlobalSetting.CHAPTER_ENABLED:
+            if GlobalSetting.CHAPTER_DISCARD_OLD:
+                # source file option: drop the chapters of the source video, also when new chapters are added
+                self.discard_old_chapters_command = add_json_line("--no-chapters")
             if self.job.chapter_found:
                 self.chapter_attach_command = add_json_line("--chapters") + \
                                               add_json_line(
                                                   check_for_system_backslash_path(self.job.chapter_name_absolute))
-            elif GlobalSetting.CHAPTER_DISCARD_OLD:
-                self.discard_old_attachments_command = add_json_line("--no-chapters")
 
     def setup_video_default_duration_fps_command(self):
         if GlobalSetting.VIDEO_DEFAULT_DURATION_FPS not in ["", "Default"]:
@@ -212,6 +223,19 @@ class GetJsonForMkvmergeJob:
         else:
             for video in self.videos_track_json_info:
                 self.track_order_line += "0:" + str(video.id) + ","
+
+    def setup_video_track_setting(self):
+        # track name / language from the video tab, "Modify Old Tracks" (added later) overrides them
+        video_command_list = []
+        for video_track in self.videos_track_json_info:
+            if not GlobalSetting.VIDEO_TRACK_NAME_KEEP_OLD:
+                video_command_list.append(add_json_line("--track-name"))
+                video_command_list.append(add_json_line(video_track.id + ":" + GlobalSetting.VIDEO_TRACK_NAME))
+            if GlobalSetting.VIDEO_LANGUAGE in ISO_639_2_LANGUAGES:
+                video_command_list.append(add_json_line("--language"))
+                video_command_list.append(
+                    add_json_line(video_track.id + ":" + ISO_639_2_LANGUAGES[GlobalSetting.VIDEO_LANGUAGE]))
+        self.video_track_setting_command = "".join(video_command_list)
 
     def setup_old_video_tracks_options(self):
         old_video_command_list = []
@@ -320,6 +344,15 @@ class GetJsonForMkvmergeJob:
                     else:
                         subtitle_command_list.append(add_json_line("--forced-track"))
                         subtitle_command_list.append(add_json_line("0:no"))
+                    # add subtitle compression (empty/"Default" keeps mkvmerge's default behaviour)
+                    subtitle_compression = get_mkvmerge_compression_value(self.job.subtitle_compression[i])
+                    if subtitle_compression != "":
+                        subtitle_command_list.append(add_json_line("--compression"))
+                        subtitle_command_list.append(add_json_line("0:" + subtitle_compression))
+                    # add subtitle commentary flag
+                    if self.job.subtitle_set_commentary[i]:
+                        subtitle_command_list.append(add_json_line("--commentary-flag"))
+                        subtitle_command_list.append(add_json_line("0:yes"))
                     # add subtitle delay
                     subtitle_delay_in_millisecond = int(1000 * float(self.job.subtitle_delay[i]))
                     subtitle_command_list.append(add_json_line("--sync"))
@@ -330,6 +363,17 @@ class GetJsonForMkvmergeJob:
                         add_json_line(check_for_system_backslash_path(self.job.subtitle_name_absolute[i])))
                     subtitle_command_list.append(add_json_line(")"))
                 self.new_subtitle_append_command = "".join(subtitle_command_list)
+
+    def setup_source_subtitle_compression(self):
+        # mkvmerge re-applies its default compression (e.g. zlib for PGS) to subtitle tracks of the source file
+        compression = get_mkvmerge_compression_value(Options.Source_Subtitle_Compression)
+        if compression == "":
+            return
+        compression_command_list = []
+        for subtitle_track in self.subtitles_track_json_info:
+            compression_command_list.append(add_json_line("--compression"))
+            compression_command_list.append(add_json_line(subtitle_track.id + ":" + compression))
+        self.source_subtitle_compression_command = "".join(compression_command_list)
 
     def setup_subtitle_track_order(self):
         if GlobalSetting.VIDEO_OLD_TRACKS_SUBTITLES_REORDER_ACTIVATED:
@@ -444,6 +488,10 @@ class GetJsonForMkvmergeJob:
                     else:
                         audio_command_list.append(add_json_line("--forced-track"))
                         audio_command_list.append(add_json_line("0:no"))
+                    # add audio commentary flag
+                    if self.job.audio_set_commentary[i]:
+                        audio_command_list.append(add_json_line("--commentary-flag"))
+                        audio_command_list.append(add_json_line("0:yes"))
                     # add audio delay
                     audio_delay_in_millisecond = int(1000 * float(self.job.audio_delay[i]))
                     audio_command_list.append(add_json_line("--sync"))
@@ -896,6 +944,9 @@ class GetJsonForMkvmergeJob:
             ui_language_commands_list.append(add_json_line("en"))
         else:
             ui_language_commands_list.append(add_json_line("en_US"))
+        if Options.Mux_No_Date:
+            # do not write the muxing date into the output file
+            ui_language_commands_list.append(add_json_line("--no-date"))
         self.ui_language_command = "".join(ui_language_commands_list)
 
     # noinspection PyListCreation
@@ -929,12 +980,15 @@ class GetJsonForMkvmergeJob:
         self.final_command += self.output_video_command
 
         self.final_command += self.discard_old_attachments_command
+        self.final_command += self.discard_old_chapters_command
         self.final_command += self.specify_video_track_source_video_command
         self.final_command += self.specify_subtitle_track_source_video_command
         self.final_command += self.specify_audio_track_source_video_command
+        self.final_command += self.video_track_setting_command
         self.final_command += self.old_video_append_command
         self.final_command += self.old_audio_append_command
         self.final_command += self.old_subtitle_append_command
+        self.final_command += self.source_subtitle_compression_command
         self.final_command += self.change_default_forced_subtitle_track_setting_source_video_command
         self.final_command += self.change_default_forced_audio_track_setting_source_video_command
 

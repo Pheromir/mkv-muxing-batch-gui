@@ -26,6 +26,12 @@ class Options(QWidget):
     Dark_Mode = False
     Attachment_Expert_Mode_Info_Message_Show = True
     Choose_Preset_On_Startup = False
+    Subtitle_Compression = "None"
+    Source_Subtitle_Compression = "None"
+    Mux_No_Date = False
+    # list of dicts, see get_track_preset() in the audio/subtitle selection tabs
+    Audio_Track_Presets = []
+    Subtitle_Track_Presets = []
 
 
 def save_options():
@@ -59,7 +65,12 @@ def save_options():
         "FavoritePresetId": Options.FavoritePresetId,
         "Dark_Mode": Options.Dark_Mode,
         "Attachment_Expert_Mode_Info_Message_Show": Options.Attachment_Expert_Mode_Info_Message_Show,
-        "Choose_Preset_On_Startup": Options.Choose_Preset_On_Startup
+        "Choose_Preset_On_Startup": Options.Choose_Preset_On_Startup,
+        "Subtitle_Compression": Options.Subtitle_Compression,
+        "Source_Subtitle_Compression": Options.Source_Subtitle_Compression,
+        "Mux_No_Date": Options.Mux_No_Date,
+        "Audio_Track_Presets": Options.Audio_Track_Presets,
+        "Subtitle_Track_Presets": Options.Subtitle_Track_Presets
     }
     options_file_path = Path(SettingJsonInfoFilePath)
     with open(options_file_path, "w+", encoding="UTF-8") as option_file:
@@ -136,4 +147,15 @@ def read_option_file(option_file):
             Options.Choose_Preset_On_Startup = get_data_from_json(json_data=data,
                                                                   attribute="Choose_Preset_On_Startup",
                                                                   default_value=False)
+            Options.Subtitle_Compression = get_data_from_json(json_data=data,
+                                                              attribute="Subtitle_Compression",
+                                                              default_value="None")
+            Options.Source_Subtitle_Compression = get_data_from_json(json_data=data,
+                                                                     attribute="Source_Subtitle_Compression",
+                                                                     default_value="None")
+            Options.Mux_No_Date = get_data_from_json(json_data=data, attribute="Mux_No_Date", default_value=False)
+            Options.Audio_Track_Presets = get_data_from_json(json_data=data, attribute="Audio_Track_Presets",
+                                                             default_value=[])
+            Options.Subtitle_Track_Presets = get_data_from_json(json_data=data, attribute="Subtitle_Track_Presets",
+                                                                default_value=[])
     save_options()

@@ -14,6 +14,8 @@ from packages.Tabs.VideoTab.Widgets.ModifyOldTracksWidgtes.ModifyOldTracksButton
 from packages.Tabs.VideoTab.Widgets.VideoSourceButton import VideoSourceButton
 from packages.Tabs.VideoTab.Widgets.VideoSourceLineEdit import VideoSourceLineEdit
 from packages.Tabs.VideoTab.Widgets.VideoTable import VideoTable
+from packages.Tabs.VideoTab.Widgets.VideoTrackSettingWidgets import VideoTrackNameLineEdit, \
+    VideoTrackNameKeepOldCheckBox, VideoLanguageComboBox
 from packages.Widgets.ErrorDialog import ErrorDialog
 from packages.Widgets.InvalidPathDialog import *
 # noinspection PyAttributeOutsideInit
@@ -71,6 +73,11 @@ class VideoSelectionSetting(GlobalSetting):
         self.video_extensions_comboBox = VideoExtensionsCheckableComboBox()
         self.video_modify_old_tracks_button = ModifyOldTracksButton()
         self.video_info_button = VideoInfoButton()
+        self.video_track_name_label = QLabel("Track Name:")
+        self.video_track_name_lineEdit = VideoTrackNameLineEdit()
+        self.video_track_name_keep_old_checkBox = VideoTrackNameKeepOldCheckBox()
+        self.video_language_label = QLabel("Language:")
+        self.video_language_comboBox = VideoLanguageComboBox()
         self.video_refresh_files_button = RefreshFilesButton()
         self.table = VideoTable()
         self.side_buttons_layout = QHBoxLayout()
@@ -101,6 +108,12 @@ class VideoSelectionSetting(GlobalSetting):
         self.setLayout(self.main_layout)
 
     def setup_side_buttons_layout(self):
+        self.side_buttons_layout.addWidget(self.video_track_name_label)
+        self.side_buttons_layout.addWidget(self.video_track_name_lineEdit, stretch=2)
+        self.side_buttons_layout.addWidget(self.video_track_name_keep_old_checkBox)
+        self.side_buttons_layout.addWidget(self.video_language_label)
+        self.side_buttons_layout.addWidget(self.video_language_comboBox, stretch=1)
+        self.side_buttons_layout.addStretch(1)
         self.side_buttons_layout.addWidget(self.video_modify_old_tracks_button)
         self.side_buttons_layout.addWidget(self.video_info_button)
 
@@ -333,7 +346,7 @@ class VideoSelectionSetting(GlobalSetting):
         self.main_layout.addWidget(self.video_extensions_comboBox, 1, 1)
         self.main_layout.addWidget(self.video_default_duration_fps_label, 1, 2)
         self.main_layout.addWidget(self.video_default_duration_fps_comboBox, 1, 3)
-        self.main_layout.addLayout(self.side_buttons_layout, 1, 4, 1, -1, alignment=Qt.AlignmentFlag.AlignRight)
+        self.main_layout.addLayout(self.side_buttons_layout, 1, 4, 1, -1)
         self.main_layout.addWidget(self.table, 2, 0, 1, -1)
 
     def change_global_last_path_directory(self):
@@ -382,6 +395,8 @@ class VideoSelectionSetting(GlobalSetting):
         GlobalSetting.VIDEO_SOURCE_PATHS = self.folders_paths
 
     def connect_signals(self):
+        self.video_track_name_keep_old_checkBox.toggled.connect(
+            lambda keep_old: self.video_track_name_lineEdit.setEnabled(not keep_old))
         self.video_source_button.clicked_signal.connect(self.update_folder_path)
         self.video_source_lineEdit.edit_finished_signal.connect(self.update_folder_path)
         self.video_source_lineEdit.set_is_drag_and_drop_signal.connect(self.update_is_drag_and_drop)
@@ -495,6 +510,9 @@ class VideoSelectionSetting(GlobalSetting):
         self.video_refresh_files_button.setEnabled(False)
         self.video_clear_button.setEnabled(False)
         self.video_default_duration_fps_comboBox.setEnabled(False)
+        self.video_track_name_lineEdit.setEnabled(False)
+        self.video_track_name_keep_old_checkBox.setEnabled(False)
+        self.video_language_comboBox.setEnabled(False)
         self.table.setAcceptDrops(False)
         self.table.disable_selection()
 
@@ -504,6 +522,9 @@ class VideoSelectionSetting(GlobalSetting):
         self.video_source_button.setEnabled(True)
         self.video_clear_button.setEnabled(True)
         self.video_default_duration_fps_comboBox.setEnabled(True)
+        self.video_track_name_keep_old_checkBox.setEnabled(True)
+        self.video_track_name_lineEdit.setEnabled(not GlobalSetting.VIDEO_TRACK_NAME_KEEP_OLD)
+        self.video_language_comboBox.setEnabled(True)
         self.table.setAcceptDrops(True)
         if not self.is_drag_and_drop:
             self.video_refresh_files_button.setEnabled(True)

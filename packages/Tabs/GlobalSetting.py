@@ -239,6 +239,9 @@ class GlobalSetting(QWidget):
     VIDEO_FILES_ABSOLUTE_PATH_LIST = []
     VIDEO_SOURCE_MKV_ONLY = False
     VIDEO_DEFAULT_DURATION_FPS = ""
+    VIDEO_TRACK_NAME = ""
+    VIDEO_TRACK_NAME_KEEP_OLD = False
+    VIDEO_LANGUAGE = "Undetermined"  # "[Old]" keeps the source language
     VIDEO_OLD_TRACKS_VIDEOS_INFO: List[List[SingleOldTrackData]] = []
     VIDEO_OLD_TRACKS_AUDIOS_INFO: List[List[SingleOldTrackData]] = []
     VIDEO_OLD_TRACKS_SUBTITLES_INFO: List[List[SingleOldTrackData]] = []
@@ -266,7 +269,9 @@ class GlobalSetting(QWidget):
     SUBTITLE_DELAY = defaultdict(float)
     SUBTITLE_SET_DEFAULT = defaultdict(bool)
     SUBTITLE_SET_FORCED = defaultdict(bool)
+    SUBTITLE_SET_COMMENTARY = defaultdict(bool)
     SUBTITLE_SET_ORDER = defaultdict(int)
+    SUBTITLE_COMPRESSION = defaultdict(str)
     SUBTITLE_SET_DEFAULT_DISABLED = False
     SUBTITLE_SET_FORCED_DISABLED = False
     SUBTITLE_LANGUAGE = defaultdict(str)
@@ -279,6 +284,7 @@ class GlobalSetting(QWidget):
     AUDIO_DELAY = defaultdict(float)
     AUDIO_SET_DEFAULT = defaultdict(bool)
     AUDIO_SET_FORCED = defaultdict(bool)
+    AUDIO_SET_COMMENTARY = defaultdict(bool)
     AUDIO_SET_ORDER = defaultdict(int)
     AUDIO_SET_DEFAULT_DISABLED = False
     AUDIO_SET_FORCED_DISABLED = False

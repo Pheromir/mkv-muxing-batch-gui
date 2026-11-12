@@ -41,13 +41,14 @@ class TabsManager(QTabWidget):
         self.mux_setting_tab = MuxSettingTab()
         self.tabs_ids = {
             "Video": 0,
-            "Subtitle": 1,
-            "Audio": 2,
+            "Audio": 1,
+            "Subtitle": 2,
             "Chapter": 3,
             "Attachment": 4,
             "Mux Setting": 5,
         }
-        self.tabs_status = [True, True, False, False, False, True]
+        # same order as tabs_ids: Video, Audio, Subtitle, Chapter, Attachment, Mux Setting
+        self.tabs_status = [True, False, True, False, False, True]
         self.add_tabs()
 
         self.setting_button = SettingButton()
@@ -64,8 +65,8 @@ class TabsManager(QTabWidget):
 
     def add_tabs(self):
         self.addTab(self.video_tab, "Videos")
-        self.addTab(self.subtitle_tab, "Subtitles")
         self.addTab(self.audio_tab, "Audios")
+        self.addTab(self.subtitle_tab, "Subtitles")
         self.addTab(self.chapter_tab, "Chapters")
         self.addTab(self.attachment_tab, "Attachments")
         self.addTab(self.mux_setting_tab, "Mux Setting")

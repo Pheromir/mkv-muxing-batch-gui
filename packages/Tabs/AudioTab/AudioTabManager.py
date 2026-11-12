@@ -5,6 +5,7 @@ from packages.Tabs.AudioTab.AudioSelection import AudioSelectionSetting
 from packages.Tabs.AudioTab.Widgets.AudioTabComboBox import AudioTabComboBox
 from packages.Tabs.AudioTab.Widgets.AudioTabDeleteButton import AudioTabDeleteButton
 from packages.Tabs.GlobalSetting import GlobalSetting
+from packages.Widgets.TrackPresetComboBox import TrackPresetComboBox
 
 
 class AudioTabManager(GlobalSetting):
@@ -19,6 +20,8 @@ class AudioTabManager(GlobalSetting):
         self.current_tab_index = 0
         self.audio_tab_comboBox = AudioTabComboBox()
         self.audio_tab_delete_button = AudioTabDeleteButton()
+        self.audio_preset_comboBox = TrackPresetComboBox(track_type="Audio",
+                                                       get_current_settings=lambda: self.current_audio_tab.get_track_preset())
         self.MainLayout = QVBoxLayout()
         self.audio_tab_setting_layout = QHBoxLayout()
         self.setLayout(self.MainLayout)
@@ -30,6 +33,7 @@ class AudioTabManager(GlobalSetting):
         self.current_audio_tab.is_there_old_files_signal.connect(self.update_is_audio_enabled)
         self.audio_tab_setting_layout.addWidget(self.audio_tab_comboBox)
         self.audio_tab_setting_layout.addWidget(self.audio_tab_delete_button)
+        self.audio_tab_setting_layout.addWidget(self.audio_preset_comboBox)
         self.audio_tab_setting_layout.addStretch(1)
         self.MainLayout.addLayout(self.audio_tab_setting_layout)
         self.MainLayout.addWidget(self.current_audio_tab)
@@ -41,6 +45,7 @@ class AudioTabManager(GlobalSetting):
         self.audio_tab_comboBox.current_tab_changed_signal.connect(self.change_current_tab)
         self.audio_tab_comboBox.create_new_tab_signal.connect(self.create_new_tab)
         self.audio_tab_delete_button.remove_tab_signal.connect(self.delete_current_tab)
+        self.audio_preset_comboBox.apply_preset_signal.connect(self.apply_preset_to_current_tab)
         self.tab_clicked_signal.connect(self.tab_clicked)
 
     def change_current_tab(self, tab_index):
@@ -89,10 +94,14 @@ class AudioTabManager(GlobalSetting):
         GlobalSetting.AUDIO_TRACK_NAME.pop(index_to_delete, None)
         GlobalSetting.AUDIO_SET_DEFAULT.pop(index_to_delete, None)
         GlobalSetting.AUDIO_SET_FORCED.pop(index_to_delete, None)
+        GlobalSetting.AUDIO_SET_COMMENTARY.pop(index_to_delete, None)
         GlobalSetting.AUDIO_SET_ORDER.pop(index_to_delete, None)
         GlobalSetting.AUDIO_TAB_ENABLED.pop(index_to_delete, None)
         GlobalSetting.AUDIO_LANGUAGE.pop(index_to_delete, None)
         self.current_tab_index = self.audio_tabs_indices[previous_tab_index]
+
+    def apply_preset_to_current_tab(self, preset):
+        self.current_audio_tab.apply_track_preset(preset)
 
     def update_is_there_old_files(self, new_state):
         self.audio_tab_delete_button.set_is_there_old_file(new_state)
@@ -110,9 +119,11 @@ class AudioTabManager(GlobalSetting):
         self.current_audio_tab.tab_clicked_signal.emit()
         if not GlobalSetting.JOB_QUEUE_EMPTY:
             self.audio_tab_delete_button.setEnabled(False)
+            self.audio_preset_comboBox.setEnabled(False)
             self.audio_tab_comboBox.hide_new_tab_option()
         else:
             self.audio_tab_delete_button.setEnabled(True)
+            self.audio_preset_comboBox.setEnabled(True)
             self.audio_tab_comboBox.show_new_tab_option()
 
     def set_default_directory(self):

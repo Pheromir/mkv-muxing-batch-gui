@@ -41,14 +41,14 @@ class MakeThisSubtitleDefaultCheckBox(QCheckBox):
 
     def state_changed(self, state):
         if not self.stop_check:
-            subtitle_to_be_default = -1
-            subtitle_to_be_forced = -1
+            subtitle_to_be_default = []
+            subtitle_to_be_forced = []
             for i in GlobalSetting.SUBTITLE_SET_DEFAULT.keys():
                 if GlobalSetting.SUBTITLE_SET_DEFAULT[i]:
-                    subtitle_to_be_default = i
+                    subtitle_to_be_default.append(i)
             for i in GlobalSetting.SUBTITLE_SET_FORCED.keys():
                 if GlobalSetting.SUBTITLE_SET_FORCED[i]:
-                    subtitle_to_be_forced = i
+                    subtitle_to_be_forced.append(i)
 
             if state == Qt.CheckState.Unchecked:
                 self.disable_combo_box.emit(True)
@@ -60,16 +60,18 @@ class MakeThisSubtitleDefaultCheckBox(QCheckBox):
                 GlobalSetting.MUX_SETTING_MAKE_THIS_SUBTITLE_DEFAULT_TRACK = ""
             else:
                 if state == Qt.CheckState.Checked.value:
-                    if subtitle_to_be_default != -1 or subtitle_to_be_forced != -1:
+                    if len(subtitle_to_be_default) > 0 or len(subtitle_to_be_forced) > 0:
                         confirm_dialog = ConfirmCheckMakeThisTrackDefaultWithUnCheckOption(track_type="subtitle", parent=self)
                         confirm_dialog.execute()
                         if confirm_dialog.result == "Yes":
                             self.disable_combo_box.emit(False)
                             self.set_tool_tip_hint_full_check()
-                            if subtitle_to_be_default != -1:
-                                GlobalSetting.SUBTITLE_SET_DEFAULT[subtitle_to_be_default] = False
-                            if subtitle_to_be_forced != -1:
-                                GlobalSetting.SUBTITLE_SET_FORCED[subtitle_to_be_forced] = False
+                            if len(subtitle_to_be_default) > 0:
+                                for j in subtitle_to_be_default:
+                                    GlobalSetting.SUBTITLE_SET_DEFAULT[j] = False
+                            if len(subtitle_to_be_forced) > 0:
+                                for j in subtitle_to_be_forced:
+                                    GlobalSetting.SUBTITLE_SET_FORCED[j] = False
                             GlobalSetting.SUBTITLE_SET_DEFAULT_DISABLED = True
                             GlobalSetting.SUBTITLE_SET_FORCED_DISABLED = True
                             GlobalSetting.MUX_SETTING_MAKE_THIS_SUBTITLE_DEFAULT_SEMI_ENABLED = False
@@ -79,8 +81,9 @@ class MakeThisSubtitleDefaultCheckBox(QCheckBox):
                             self.disable_combo_box.emit(False)
                             self.setCheckState(Qt.CheckState.PartiallyChecked)
                             self.set_tool_tip_hint_partially_check()
-                            if subtitle_to_be_default != -1:
-                                GlobalSetting.SUBTITLE_SET_DEFAULT[subtitle_to_be_default] = False
+                            if len(subtitle_to_be_default) > 0:
+                                for j in subtitle_to_be_default:
+                                    GlobalSetting.SUBTITLE_SET_DEFAULT[j] = False
                             GlobalSetting.SUBTITLE_SET_DEFAULT_DISABLED = True
                             GlobalSetting.SUBTITLE_SET_FORCED_DISABLED = False
                             GlobalSetting.MUX_SETTING_MAKE_THIS_SUBTITLE_DEFAULT_SEMI_ENABLED = True
@@ -100,23 +103,26 @@ class MakeThisSubtitleDefaultCheckBox(QCheckBox):
                     else:
                         self.disable_combo_box.emit(False)
                         self.set_tool_tip_hint_full_check()
-                        if subtitle_to_be_default != -1:
-                            GlobalSetting.SUBTITLE_SET_DEFAULT[subtitle_to_be_default] = False
-                        if subtitle_to_be_forced != -1:
-                            GlobalSetting.SUBTITLE_SET_FORCED[subtitle_to_be_forced] = False
+                        if len(subtitle_to_be_default) > 0:
+                            for j in subtitle_to_be_default:
+                                GlobalSetting.SUBTITLE_SET_DEFAULT[j] = False
+                        if len(subtitle_to_be_forced) > 0:
+                            for j in subtitle_to_be_forced:
+                                GlobalSetting.SUBTITLE_SET_FORCED[j] = False
                         GlobalSetting.SUBTITLE_SET_DEFAULT_DISABLED = True
                         GlobalSetting.SUBTITLE_SET_FORCED_DISABLED = True
                         GlobalSetting.MUX_SETTING_MAKE_THIS_SUBTITLE_DEFAULT_SEMI_ENABLED = False
                         GlobalSetting.MUX_SETTING_MAKE_THIS_SUBTITLE_DEFAULT_FULL_ENABLED = True
                 else:
-                    if subtitle_to_be_default != -1:
+                    if len(subtitle_to_be_default) > 0:
                         confirm_dialog = ConfirmCheckMakeThisTrackDefault(track_type="subtitle", parent=self)
                         confirm_dialog.execute()
                         if confirm_dialog.result == "Yes":
                             self.disable_combo_box.emit(False)
                             self.set_tool_tip_hint_partially_check()
-                            if subtitle_to_be_default != -1:
-                                GlobalSetting.SUBTITLE_SET_DEFAULT[subtitle_to_be_default] = False
+                            if len(subtitle_to_be_default) > 0:
+                                for j in subtitle_to_be_default:
+                                    GlobalSetting.SUBTITLE_SET_DEFAULT[j] = False
                             GlobalSetting.SUBTITLE_SET_DEFAULT_DISABLED = True
                             GlobalSetting.SUBTITLE_SET_FORCED_DISABLED = False
                             GlobalSetting.MUX_SETTING_MAKE_THIS_SUBTITLE_DEFAULT_SEMI_ENABLED = True
@@ -132,8 +138,9 @@ class MakeThisSubtitleDefaultCheckBox(QCheckBox):
                     else:
                         self.disable_combo_box.emit(False)
                         self.set_tool_tip_hint_partially_check()
-                        if subtitle_to_be_default != -1:
-                            GlobalSetting.SUBTITLE_SET_DEFAULT[subtitle_to_be_default] = False
+                        if len(subtitle_to_be_default) > 0:
+                            for j in subtitle_to_be_default:
+                                GlobalSetting.SUBTITLE_SET_DEFAULT[j] = False
                         GlobalSetting.SUBTITLE_SET_DEFAULT_DISABLED = True
                         GlobalSetting.SUBTITLE_SET_FORCED_DISABLED = False
                         GlobalSetting.MUX_SETTING_MAKE_THIS_SUBTITLE_DEFAULT_SEMI_ENABLED = True

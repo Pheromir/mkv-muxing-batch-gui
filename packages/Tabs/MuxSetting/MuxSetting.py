@@ -80,7 +80,9 @@ def check_if_at_least_one_muxing_setting_has_been_selected(window_parent):
             GlobalSetting.VIDEO_OLD_TRACKS_VIDEOS_MODIFIED_ACTIVATED or \
             GlobalSetting.VIDEO_OLD_TRACKS_AUDIOS_MODIFIED_ACTIVATED or \
             GlobalSetting.VIDEO_OLD_TRACKS_SUBTITLES_MODIFIED_ACTIVATED or \
-            GlobalSetting.VIDEO_DEFAULT_DURATION_FPS not in ["", "Default"]:
+            GlobalSetting.VIDEO_DEFAULT_DURATION_FPS not in ["", "Default"] or \
+            not GlobalSetting.VIDEO_TRACK_NAME_KEEP_OLD or \
+            GlobalSetting.VIDEO_LANGUAGE != "[Old]":
         return True
     else:
         no_setting_to_apply_dialog = NoSettingToApplyDialog(parent=window_parent)
