@@ -2,9 +2,12 @@
 
 A robust application for muxing(merging) videos with subtitles, audios, chapters, attachments alongside many customization options.
 
-[![Github All Releases](https://img.shields.io/github/downloads/yaser01/mkv-muxing-batch-gui/total.svg?color=4DC71F&label=Downloads&logo=github")](https://github.com/yaser01/mkv-muxing-batch-gui/releases/latest)
-[![Donate](https://img.shields.io/badge/Donate-Buy_Me_A_Coffe-blueviolet.svg)](https://www.buymeacoffee.com/yaser01)
+> [!IMPORTANT]
+> This is a fork of [yaser01/mkv-muxing-batch-gui](https://github.com/yaser01/mkv-muxing-batch-gui) by yaser01.
+> The original project has not been updated since January 2024, so this fork continues it with bug fixes and new features.
+> All credit for the original application goes to its author.
 
+- [Changes in this Fork](#changes-in-this-fork)
 - [App Preview](#app-preview)
 - [Features](#features)
     - [Video Options](#video-options)
@@ -20,13 +23,28 @@ A robust application for muxing(merging) videos with subtitles, audios, chapters
     - [For Linux Users](#for-linux-users)
     - [Using Python Code](#using-python-code-version)
     - [Updating the MKVmerge version](#updating-the-mkvmerge-version)
+    - [Building the Windows Exe](#building-the-windows-exe)
 - [Attribution](#attribution)
-- [Report a Bug](#report-a-bug)
-
-
-
-
 - [License](#license)
+
+## 🔀Changes in this Fork
+
+**Fixes**
+- `Discard Old Chapters` now also works in normal (mkvmerge) mode when new chapters are added
+- Several audio/subtitle tracks can be marked as default and/or forced at the same time
+
+**New options**
+- Video tab: set track name and language of the video track directly (default: no track name, language `und`), each value can also be kept from the source
+- Audio/Subtitle tabs: track presets, apply, save and delete all settings of a tab (except delay and source) via the dropdown next to the tab selector
+- Audio/Subtitle tabs: `Commentary` flag
+- Audio tabs: `Set Default` is checked by default
+- Subtitle tabs: compression of new subtitles (`Default`/`None`/`Zlib`, default `None`)
+- Options: compression of subtitles taken from the source video (default `None`, avoids mkvmerge's automatic zlib compression for PGS)
+- Options: `Don't write muxing date` (mkvmerge `--no-date`)
+
+**Other**
+- Tab order follows the structure of a MKV file: Videos, Audios, Subtitles, Chapters
+- Donation and social media links of the original author were removed from the app, as the original project is no longer active
 
 ## ✨App Preview
 _A preview of the application in action:_
@@ -41,25 +59,28 @@ https://github.com/yaser01/mkv-muxing-batch-gui/assets/52576632/33f8bf3e-600c-4e
 ### Video Options
 - View media info of each file to monitor the video tracks
 - Change default video duration/FPS [use this feature cautiously]
+- Set track name and language of the video track(s)
 ### Subtitle Options
 - Add new subtitles to each video file
 - Subtitles names **don't have to match** videos names
 - Reorder the subtitles to match the right video
 - Remove files from the subtitle tab
-- Set subtitles to be default/forced
-- Set subtitle delay, track name, language
+- Set subtitles to be default/forced/commentary
+- Set subtitle delay, track name, language, compression
 - Mux the new subtitle at any desired position in the output video
 - Add multiple subtitles to each video file with individual settings for each subtitle
+- Save the settings of a subtitle tab as preset and apply it to other tabs
 
 ### Audio Options
 - Add new audios to each video file
 - Audios names **don't have to match** videos names
 - Reorder the audios to match the right video
 - Remove files from the audio tab
-- Set audios to be default/forced
+- Set audios to be default/forced/commentary
 - Set audio delay, track name, language
 - Mux the new audio at any desired position in the output video
 - Add multiple audios to each video file with individual settings for each audio
+- Save the settings of an audio tab as preset and apply it to other tabs
 
 ### Chapter Options
 - Add new chapters to each video file
@@ -86,6 +107,7 @@ https://github.com/yaser01/mkv-muxing-batch-gui/assets/52576632/33f8bf3e-600c-4e
 - Save a log file
 - Set your default directories, languages, and file extensions to be remembered for future runs
 - Optimize your muxing by modifying the source file when feasible. A prompt will appear when this option is available
+- Choose the compression of subtitles taken from the source video and mux without writing the muxing date [Options]
 ## 📝Notes
 
 > [!NOTE]
@@ -106,7 +128,8 @@ https://github.com/yaser01/mkv-muxing-batch-gui/assets/52576632/33f8bf3e-600c-4e
 ## ⬇Downloads
 
 The MKV Muxing Batch GUI is compatible with Windows 7/8/8.1/10/11 32-bit/64-bit and most Linux distributions. 
-You can download it from the project's [releases&nbsp;page](https://github.com/yaser01/mkv-muxing-batch-gui/releases).
+Builds of this fork are published on its [releases&nbsp;page](https://github.com/Pheromir/mkv-muxing-batch-gui/releases).
+The original versions are still available on the [releases&nbsp;page](https://github.com/yaser01/mkv-muxing-batch-gui/releases) of the original project.
 
 
 ### For Linux Users
@@ -119,7 +142,7 @@ sudo apt install libxcb-cursor0
 ```
 ### Using Python Code Version
 
-1. Clone the repository :`git clone https://github.com/yaser01/mkv-muxing-batch-gui.git`.
+1. Clone the repository :`git clone https://github.com/Pheromir/mkv-muxing-batch-gui.git`.
 2. The main branch use ``PySide6`` library on version `6.6.1` which is tested on `python 3.10.8` working good and only supporting x64 systems.
 3. If you want to use on x32 systems you should switch to branch `develop-PySide2`: `git checkout develop-pyside2` which uses `PySide2 v5.14.0` and tested in `python 3.8.10`.
 4. After selecting the branch just make sure to use the mentioned python version as it's guaranteed to work perfect.
@@ -139,16 +162,18 @@ You can manually update the mkvmerge version the app uses, but do this only if y
 
 > For linux users it's recommended to just clear `Resources\\Tools\\ [your operating system]` folder and then install mkvtoolnix on your system from [here](https://mkvtoolnix.download/downloads.html) and the app will automatically detect it.
 
-## 🙏Attribution
-- The application relies heavily on [MKVToolNix](https://gitlab.com/mbunkus/mkvtoolnix), so a big thanks to them.
-- Thanks to my friends who helped test the app and offered numerous ideas.
+### Building the Windows Exe
+1. Install the requirements and PyInstaller: `pip install -r requirements.txt pyinstaller`.
+2. Run `build-exe\build.bat`.
+3. The app is created in `dist\MKV Muxing Batch GUI\` (the whole folder is needed, not only the exe).
 
-## 🦟Report a Bug
-Any software bugs can be reported on the project's [issues page](https://github.com/yaser01/mkv-muxing-batch-gui/issues). Suggestions for future updates are also welcome.
+## 🙏Attribution
+- MKV Muxing Batch GUI was created by [yaser01](https://github.com/yaser01), this fork is based on the [original project](https://github.com/yaser01/mkv-muxing-batch-gui).
+- The application relies heavily on [MKVToolNix](https://gitlab.com/mbunkus/mkvtoolnix), so a big thanks to them.
 
 ## 🏷License
 
-[![GitHub](https://img.shields.io/github/license/yaser01/mkv-muxing-batch-gui?style=for-the-badge)](https://github.com/yaser01/mkv-muxing-batch-gui/blob/main/LICENSE)
+[![GitHub](https://img.shields.io/github/license/Pheromir/mkv-muxing-batch-gui?style=for-the-badge)](https://github.com/Pheromir/mkv-muxing-batch-gui/blob/main/LICENSE)
 
 <div align="right">
 <table><td>

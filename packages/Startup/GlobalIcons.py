@@ -6,8 +6,8 @@ from packages.Startup.GlobalFiles import OkIconPath, ErrorIconPath, ErrorBigIcon
     RedDashIconPath, InfoIconPath, AboutIconPath, InfoSettingIconPath, WarningCheckBigIconPath, WarningCheckIconPath, \
     StartMultiplexingIconPath, PauseMultiplexingIconPath, AddToQueueIconPath, ClearIconPath, TopLightIconPath, \
     DownLightIconPath, UpLightIconPath, BottomLightIconPath, TopDarkIconPath, DownDarkIconPath, UpDarkIconPath, \
-    BottomDarkIconPath, FolderIconPath, SettingIconPath, TelegramIconPath, TwitterIconPath, LeftArrowIconPath, \
-    RightArrowIconPath, DonationsIconPath, ThemeIconPath, AppIconPath, SubtitleDarkIconPath, RenameIconPath, \
+    BottomDarkIconPath, FolderIconPath, SettingIconPath, LeftArrowIconPath, \
+    RightArrowIconPath, ThemeIconPath, AppIconPath, SubtitleDarkIconPath, RenameIconPath, \
     EmptyIconPath, TrueCheckIconPath, PresetLightIconPath, PresetDarkIconPath, SelectedItemIconPath, \
     UnSelectedItemIconPath
 
@@ -50,10 +50,7 @@ UpDarkIcon = QIcon(QPixmap(UpDarkIconPath))
 BottomDarkIcon = QIcon(QPixmap(BottomDarkIconPath))
 SelectFolderIcon = QIcon(QPixmap(FolderIconPath))
 SettingIcon = QIcon(QPixmap(SettingIconPath))
-TelegramIcon = QIcon(QPixmap(TelegramIconPath))
-TwitterIcon = QIcon(QPixmap(TwitterIconPath))
 LeftArrowIcon = QIcon(QPixmap(LeftArrowIconPath))
 RightArrowIcon = QIcon(QPixmap(RightArrowIconPath))
-DonationsIcon = QIcon(QPixmap(DonationsIconPath))
 ThemeIcon = QIcon(QPixmap(ThemeIconPath))
 AppIcon = QIcon(QPixmap(AppIconPath))

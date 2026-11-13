@@ -44,7 +44,6 @@ AllVideoDefaultDurationFPSLanguages = ['Default', '24p', '25p', '30p', '48p', '5
                                        '30000/1001p', '48000/1001p', '60000/1001i', '60000/1001p']
 AllSubtitleCompressions = ['Default', 'None', 'Zlib']
 SubtitleCompressionMkvmergeValues = {'Default': '', 'None': 'none', 'Zlib': 'zlib'}
-GitHubRepoUrlTag = "<a href=\"https://github.com/yaser01/mkv-muxing-batch-gui\">Our Home Page</a> "
+GitHubRepoUrlTag = "<a href=\"https://github.com/Pheromir/mkv-muxing-batch-gui\">GitHub</a> "
+OriginalGitHubRepoUrlTag = "<a href=\"https://github.com/yaser01/mkv-muxing-batch-gui\">MKV Muxing Batch GUI</a>"
 GPLV2UrlTag = "<a href=\"http://www.gnu.org/licenses/old-licenses/gpl-2.0.html\">GPLv2</a>"
-GitHubIssuesUrlTag = "<a href=\"https://github.com/yaser01/mkv-muxing-batch-gui/issues\">issues page</a>"
-DonationsUrl = "https://www.buymeacoffee.com/yaser01"
