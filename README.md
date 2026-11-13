@@ -4,7 +4,8 @@ A robust application for muxing(merging) videos with subtitles, audios, chapters
 
 > [!IMPORTANT]
 > This is a fork of [yaser01/mkv-muxing-batch-gui](https://github.com/yaser01/mkv-muxing-batch-gui) by yaser01.
-> The original project has not been updated since January 2024, so this fork continues it with bug fixes and new features.
+> The original project has not been updated since January 2024.
+> This fork only contains some fixes and features for my own use, it is not actively developed or maintained.
 > All credit for the original application goes to its author.
 
 - [Changes in this Fork](#changes-in-this-fork)
@@ -128,7 +129,7 @@ https://github.com/yaser01/mkv-muxing-batch-gui/assets/52576632/33f8bf3e-600c-4e
 ## ⬇Downloads
 
 The MKV Muxing Batch GUI is compatible with Windows 7/8/8.1/10/11 32-bit/64-bit and most Linux distributions. 
-Builds of this fork are published on its [releases&nbsp;page](https://github.com/Pheromir/mkv-muxing-batch-gui/releases).
+Builds of this fork, if any, are available on its [releases&nbsp;page](https://github.com/Pheromir/mkv-muxing-batch-gui/releases).
 The original versions are still available on the [releases&nbsp;page](https://github.com/yaser01/mkv-muxing-batch-gui/releases) of the original project.
 
 
