@@ -42,6 +42,7 @@ A robust application for muxing(merging) videos with subtitles, audios, chapters
 - Subtitle tabs: compression of new subtitles (`Default`/`None`/`Zlib`, default `None`)
 - Options: compression of subtitles taken from the source video (default `None`, avoids mkvmerge's automatic zlib compression for PGS)
 - Options: `Don't write muxing date` (mkvmerge `--no-date`)
+- Mux Setting: title of the output MKV file, keep the old title, set a new one or remove it (`Remove Title` is remembered)
 
 **Other**
 - Tab order follows the structure of a MKV file: Videos, Audios, Subtitles, Chapters

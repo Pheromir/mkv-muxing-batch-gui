@@ -63,6 +63,7 @@ class GetJsonForMkvpropeditJob:
         self.input_video_command = ""
         self.attachments_attach_command = ""
         self.chapter_attach_command = ""
+        self.mkv_title_command = ""
         self.discard_old_attachments_command = ""
         self.number_of_old_attachments = 0
         self.change_default_forced_subtitle_track_setting_source_video_command = ""
@@ -93,6 +94,7 @@ class GetJsonForMkvpropeditJob:
         self.make_this_audio_default_forced()
         self.setup_ui_language()
         self.setup_input_video_command()
+        self.setup_mkv_title_command()
         self.setup_final_command()
 
     def generate_info_file(self):
@@ -724,11 +726,20 @@ class GetJsonForMkvpropeditJob:
         input_video_commands_list.append(add_json_line(check_for_system_backslash_path(self.job.video_name_absolute)))
         self.input_video_command = "".join(input_video_commands_list)
 
+    def setup_mkv_title_command(self):
+        if GlobalSetting.MUX_SETTING_MKV_REMOVE_TITLE:
+            self.mkv_title_command = add_json_line("--edit") + add_json_line("info") + \
+                                     add_json_line("--delete") + add_json_line("title")
+        elif GlobalSetting.MUX_SETTING_MKV_TITLE != "":
+            self.mkv_title_command = add_json_line("--edit") + add_json_line("info") + \
+                                     add_json_line("--set") + add_json_line("title=" + GlobalSetting.MUX_SETTING_MKV_TITLE)
+
     def setup_final_command(self):
         self.final_command = "["
         self.final_command += "\n"
         self.final_command += self.ui_language_command
         self.final_command += self.input_video_command
+        self.final_command += self.mkv_title_command
         self.final_command += self.change_default_forced_subtitle_track_setting_source_video_command
         self.final_command += self.change_default_forced_audio_track_setting_source_video_command
         self.final_command += self.video_track_setting_command

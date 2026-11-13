@@ -83,6 +83,7 @@ class GetJsonForMkvmergeJob:
         self.input_video_command = ""
         self.attachments_attach_command = ""
         self.chapter_attach_command = ""
+        self.mkv_title_command = ""
         self.new_subtitle_append_command = ""
         self.new_audio_append_command = ""
         self.old_video_append_command = ""
@@ -131,6 +132,7 @@ class GetJsonForMkvmergeJob:
         self.make_this_audio_default_forced()
         self.setup_ui_language()
         self.setup_output_video_command()
+        self.setup_mkv_title_command()
         self.setup_input_video_command()
         self.setup_video_default_duration_fps_command()
         self.setup_track_order_command()
@@ -973,11 +975,19 @@ class GetJsonForMkvmergeJob:
         input_video_commands_list.append(add_json_line(")"))
         self.input_video_command = "".join(input_video_commands_list)
 
+    def setup_mkv_title_command(self):
+        # segment title of the output file, mkvmerge keeps the source title if nothing is given
+        if GlobalSetting.MUX_SETTING_MKV_REMOVE_TITLE:
+            self.mkv_title_command = add_json_line("--title") + add_json_line("")
+        elif GlobalSetting.MUX_SETTING_MKV_TITLE != "":
+            self.mkv_title_command = add_json_line("--title") + add_json_line(GlobalSetting.MUX_SETTING_MKV_TITLE)
+
     def setup_final_command(self):
         self.final_command = "["
         self.final_command += "\n"
         self.final_command += self.ui_language_command
         self.final_command += self.output_video_command
+        self.final_command += self.mkv_title_command
 
         self.final_command += self.discard_old_attachments_command
         self.final_command += self.discard_old_chapters_command

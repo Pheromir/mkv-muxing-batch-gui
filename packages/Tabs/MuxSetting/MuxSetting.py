@@ -22,6 +22,7 @@ from packages.Tabs.MuxSetting.Widgets.JobQueueLayout import JobQueueLayout
 from packages.Tabs.MuxSetting.Widgets.MakeThisAudioDefaultCheckBox import MakeThisAudioDefaultCheckBox
 from packages.Tabs.MuxSetting.Widgets.MakeThisSubtitleDefaultCheckBox import MakeThisSubtitleDefaultCheckBox
 from packages.Tabs.MuxSetting.Widgets.MakeThisTrackDefaultComboBox import MakeThisTrackDefaultComboBox
+from packages.Tabs.MuxSetting.Widgets.MkvTitleWidgets import MkvTitleLineEdit, MkvTitleRemoveCheckBox
 from packages.Tabs.MuxSetting.Widgets.NoSpaceWarningDialog import NoSpaceWarningDialog
 from packages.Tabs.MuxSetting.Widgets.OnlyKeepThoseAudiosCheckBox import OnlyKeepThoseAudiosCheckBox
 from packages.Tabs.MuxSetting.Widgets.OnlyKeepThoseSubtitlesCheckBox import OnlyKeepThoseSubtitlesCheckBox
@@ -82,7 +83,9 @@ def check_if_at_least_one_muxing_setting_has_been_selected(window_parent):
             GlobalSetting.VIDEO_OLD_TRACKS_SUBTITLES_MODIFIED_ACTIVATED or \
             GlobalSetting.VIDEO_DEFAULT_DURATION_FPS not in ["", "Default"] or \
             not GlobalSetting.VIDEO_TRACK_NAME_KEEP_OLD or \
-            GlobalSetting.VIDEO_LANGUAGE != "[Old]":
+            GlobalSetting.VIDEO_LANGUAGE != "[Old]" or \
+            GlobalSetting.MUX_SETTING_MKV_REMOVE_TITLE or \
+            GlobalSetting.MUX_SETTING_MKV_TITLE != "":
         return True
     else:
         no_setting_to_apply_dialog = NoSettingToApplyDialog(parent=window_parent)
@@ -159,6 +162,8 @@ class MuxSettingTab(QWidget):
         self.tab_clicked_signal.connect(self.tab_clicked)
 
         self.destination_path_button.clicked.connect(self.open_select_destination_folder_dialog)
+        self.mkv_title_remove_checkBox.toggled.connect(
+            lambda remove_title: self.mkv_title_lineEdit.setEnabled(not remove_title))
 
         self.only_keep_those_audios_checkBox.stateChanged.connect(
             self.only_keep_those_audios_multi_choose_comboBox.check_box_state_changed)
@@ -234,6 +239,10 @@ class MuxSettingTab(QWidget):
         self.destination_path_label = QLabel()
         self.destination_path_lineEdit = QLineEdit()
         self.destination_path_button = QPushButton()
+        self.mkv_title_label = QLabel("MKV Title :")
+        self.mkv_title_lineEdit = MkvTitleLineEdit()
+        self.mkv_title_remove_checkBox = MkvTitleRemoveCheckBox()
+        self.mkv_title_layout = QHBoxLayout()
         self.only_keep_those_audios_checkBox = OnlyKeepThoseAudiosCheckBox()
         self.only_keep_those_subtitles_checkBox = OnlyKeepThoseSubtitlesCheckBox()
         self.only_keep_those_audios_multi_choose_comboBox = AudioTracksCheckableComboBox()
@@ -257,6 +266,11 @@ class MuxSettingTab(QWidget):
         self.mux_setting_layout.addWidget(self.destination_path_label, 0, 0)
         self.mux_setting_layout.addWidget(self.destination_path_lineEdit, 0, 1)
         self.mux_setting_layout.addWidget(self.destination_path_button, 0, 2)
+        self.mkv_title_layout.addWidget(self.mkv_title_lineEdit, stretch=1)
+        self.mkv_title_layout.addWidget(self.mkv_title_remove_checkBox, stretch=0)
+        self.mkv_title_lineEdit.setEnabled(not self.mkv_title_remove_checkBox.isChecked())
+        self.mux_setting_layout.addWidget(self.mkv_title_label, 3, 0)
+        self.mux_setting_layout.addLayout(self.mkv_title_layout, 3, 1, 1, 2)
         self.mux_setting_layout.addWidget(self.only_keep_those_audios_checkBox, 1, 0)
         self.mux_setting_layout.addWidget(self.only_keep_those_subtitles_checkBox, 2, 0)
         self.mux_setting_layout.addLayout(self.mux_tools_layout_first_row, 1, 1)
@@ -615,6 +629,8 @@ class MuxSettingTab(QWidget):
         self.make_this_audio_default_comboBox.setEnabled(False)
         self.add_crc_checksum_checkBox.setEnabled(False)
         self.remove_old_crc_checksum_checkBox.setEnabled(False)
+        self.mkv_title_lineEdit.setEnabled(False)
+        self.mkv_title_remove_checkBox.setEnabled(False)
 
     def enable_editable_widgets(self):
         self.only_keep_those_subtitles_checkBox.setEnabled(True)
@@ -628,6 +644,8 @@ class MuxSettingTab(QWidget):
         self.make_this_audio_default_comboBox.setEnabled(self.make_this_audio_default_checkBox.isChecked())
         self.add_crc_checksum_checkBox.setEnabled(True)
         self.remove_old_crc_checksum_checkBox.setEnabled(True)
+        self.mkv_title_remove_checkBox.setEnabled(True)
+        self.mkv_title_lineEdit.setEnabled(not self.mkv_title_remove_checkBox.isChecked())
 
     def only_keep_those_audios_close_list(self):
         GlobalSetting.MUX_SETTING_ONLY_KEEP_THOSE_AUDIOS_TRACKS_LANGUAGES = self.only_keep_those_audios_multi_choose_comboBox.tracks_language

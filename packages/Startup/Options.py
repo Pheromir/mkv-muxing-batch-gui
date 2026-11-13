@@ -29,6 +29,7 @@ class Options(QWidget):
     Subtitle_Compression = "None"
     Source_Subtitle_Compression = "None"
     Mux_No_Date = False
+    Mux_Remove_Title = False
     # list of dicts, see get_track_preset() in the audio/subtitle selection tabs
     Audio_Track_Presets = []
     Subtitle_Track_Presets = []
@@ -69,6 +70,7 @@ def save_options():
         "Subtitle_Compression": Options.Subtitle_Compression,
         "Source_Subtitle_Compression": Options.Source_Subtitle_Compression,
         "Mux_No_Date": Options.Mux_No_Date,
+        "Mux_Remove_Title": Options.Mux_Remove_Title,
         "Audio_Track_Presets": Options.Audio_Track_Presets,
         "Subtitle_Track_Presets": Options.Subtitle_Track_Presets
     }
@@ -154,6 +156,8 @@ def read_option_file(option_file):
                                                                      attribute="Source_Subtitle_Compression",
                                                                      default_value="None")
             Options.Mux_No_Date = get_data_from_json(json_data=data, attribute="Mux_No_Date", default_value=False)
+            Options.Mux_Remove_Title = get_data_from_json(json_data=data, attribute="Mux_Remove_Title",
+                                                          default_value=False)
             Options.Audio_Track_Presets = get_data_from_json(json_data=data, attribute="Audio_Track_Presets",
                                                              default_value=[])
             Options.Subtitle_Track_Presets = get_data_from_json(json_data=data, attribute="Subtitle_Track_Presets",
