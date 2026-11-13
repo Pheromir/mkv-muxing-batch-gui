@@ -48,7 +48,8 @@ class TabsManager(QTabWidget):
             "Mux Setting": 5,
         }
         # same order as tabs_ids: Video, Audio, Subtitle, Chapter, Attachment, Mux Setting
-        self.tabs_status = [True, False, True, False, False, True]
+        # track tabs start inactive, they get highlighted once files are added
+        self.tabs_status = [True, False, False, False, False, True]
         self.add_tabs()
 
         self.setting_button = SettingButton()
@@ -90,13 +91,8 @@ class TabsManager(QTabWidget):
         self.task_bar_start_muxing_signal.emit()
 
     def setup_tabs_theme(self):
-        activate_color, disabled_color = get_activate_and_disabled_color_according_to_current_theme()
-        self.set_tab_color(tab_index=self.tabs_ids["Video"], color_string=activate_color)
-        self.set_tab_color(tab_index=self.tabs_ids["Subtitle"], color_string=activate_color)
-        self.set_tab_color(tab_index=self.tabs_ids["Audio"], color_string=disabled_color)
-        self.set_tab_color(tab_index=self.tabs_ids["Attachment"], color_string=disabled_color)
-        self.set_tab_color(tab_index=self.tabs_ids["Chapter"], color_string=disabled_color)
-        self.set_tab_color(tab_index=self.tabs_ids["Mux Setting"], color_string=activate_color)
+        # initial colors come from tabs_status, so they match the real state of each tab
+        self.update_tabs_name_theme_mode_state()
 
     def change_attachment_activated_state(self, new_state):
         activate_color, disabled_color = get_activate_and_disabled_color_according_to_current_theme()
