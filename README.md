@@ -165,9 +165,17 @@ You can manually update the mkvmerge version the app uses, but do this only if y
 > For linux users it's recommended to just clear `Resources\\Tools\\ [your operating system]` folder and then install mkvtoolnix on your system from [here](https://mkvtoolnix.download/downloads.html) and the app will automatically detect it.
 
 ### Building the Windows Exe
-1. Install the requirements and PyInstaller: `pip install -r requirements.txt pyinstaller`.
+1. Install the build requirements (tested with Python 3.14): `pip install -r build-exe/requirements-build.txt`.
 2. Run `build-exe\build.bat`.
 3. The app is created in `dist\MKV Muxing Batch GUI\` (the whole folder is needed, not only the exe).
+
+### Creating a Release
+Pushing a version tag builds the exe with GitHub Actions and publishes it as release (`.github/workflows/release.yml`):
+```bash
+git tag v2.5.0
+git push origin v2.5.0
+```
+The version of the tag is used for the app and the exe, the release contains the zipped program folder.
 
 ## 🙏Attribution
 - MKV Muxing Batch GUI was created by [yaser01](https://github.com/yaser01), this fork is based on the [original project](https://github.com/yaser01/mkv-muxing-batch-gui).
