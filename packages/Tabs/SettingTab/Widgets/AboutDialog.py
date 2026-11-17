@@ -4,11 +4,16 @@ from PySide6.QtGui import QPixmap, QFont
 from PySide6.QtWidgets import QLabel, \
      QPushButton, QHBoxLayout, QVBoxLayout
 
-from packages.Startup.GlobalFiles import AppIconPath, MKVMERGE_VERSION, MKVPROPEDIT_VERSION
+from packages.Startup.GlobalFiles import AppIconPath, MKVMERGE_VERSION, MKVPROPEDIT_VERSION, MKVMERGE_SOURCE, \
+    MKVPROPEDIT_SOURCE
 from packages.Startup.GlobalIcons import AboutIcon
 from packages.Startup.PreDefined import GitHubRepoUrlTag, GPLV2UrlTag, OriginalGitHubRepoUrlTag
 from packages.Startup.Version import Version
 from packages.Widgets.MyDialog import MyDialog
+
+
+def get_source_text(source):
+    return f" [{source.lower()}]" if source != "" else ""
 
 
 class AboutDialog(MyDialog):
@@ -20,8 +25,9 @@ class AboutDialog(MyDialog):
         self.app_icon_label.setPixmap(QPixmap(AppIconPath).scaledToHeight(175))
         self.app_name_label = QLabel("MKV Muxing Batch GUI")
         self.app_current_version = QLabel("Version: " + str(Version))
-        self.app_mkvmerge_current_version = QLabel(str(MKVMERGE_VERSION))
-        self.app_mkvpropedit_current_version = QLabel(str(MKVPROPEDIT_VERSION))
+        self.app_mkvmerge_current_version = QLabel(str(MKVMERGE_VERSION) + get_source_text(MKVMERGE_SOURCE))
+        self.app_mkvpropedit_current_version = QLabel(
+            str(MKVPROPEDIT_VERSION) + get_source_text(MKVPROPEDIT_SOURCE))
         self.app_link_github_label = QLabel("Check for updates on: " + GitHubRepoUrlTag)
         self.app_link_github_label.setOpenExternalLinks(True)
         self.app_licence_label = QLabel("MKV Muxing Batch GUI is released under the " + GPLV2UrlTag + "+ licence")

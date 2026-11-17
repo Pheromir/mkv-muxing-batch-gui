@@ -43,9 +43,11 @@ A robust application for muxing(merging) videos with subtitles, audios, chapters
 - Options: compression of subtitles taken from the source video (default `None`, avoids mkvmerge's automatic zlib compression for PGS)
 - Options: `Don't write muxing date` (mkvmerge `--no-date`)
 - Mux Setting: title of the output MKV file, keep the old title, set a new one or remove it (`Remove Title` is remembered)
+- Options: choose whether the bundled or an installed MKVToolNix (mkvmerge/mkvpropedit) is used
 
 **Other**
 - Tab order follows the structure of a MKV file: Videos, Audios, Subtitles, Chapters
+- Bundled MKVToolNix for Windows updated from 81.0 to 103.0
 - Donation and social media links of the original author were removed from the app, as the original project is no longer active
 
 ## ✨App Preview
@@ -155,7 +157,9 @@ sudo apt install libxcb-cursor0
 9. Also, for linux users: as this app depends on mkvtoolnix it's very recommended to install it on your system before run the app from [here](https://mkvtoolnix.download/downloads.html).
 
 ### Updating The MKVmerge version
-You can manually update the mkvmerge version the app uses, but do this only if you're sure of what you're doing, as it may require a reinstallation:
+The app ships its own mkvmerge/mkvpropedit. To use a newer version, install [MKVToolNix](https://mkvtoolnix.download/downloads.html) and set `MKVToolNix` to `Installed` in the options (takes effect on next launch). The app then looks for it in the default install folder (`C:\Program Files\MKVToolNix` on Windows) and in `PATH`. If the chosen version is not available, the other one is used. The used versions are shown in the about dialog.
+
+Alternatively you can replace the bundled files, but do this only if you're sure of what you're doing, as it may require a reinstallation:
 ```bash
 # Navigate to the app's installation directory, e.g. on Windows:
 "C:\\Program Files (x86)\\MKV Muxing Batch GUI"

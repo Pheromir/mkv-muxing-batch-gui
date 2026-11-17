@@ -30,6 +30,7 @@ class Options(QWidget):
     Source_Subtitle_Compression = "None"
     Mux_No_Date = False
     Mux_Remove_Title = False
+    Mkvtoolnix_Source = "Bundled"  # "Bundled" or "Installed", read by GlobalFiles on start
     # list of dicts, see get_track_preset() in the audio/subtitle selection tabs
     Audio_Track_Presets = []
     Subtitle_Track_Presets = []
@@ -71,6 +72,7 @@ def save_options():
         "Source_Subtitle_Compression": Options.Source_Subtitle_Compression,
         "Mux_No_Date": Options.Mux_No_Date,
         "Mux_Remove_Title": Options.Mux_Remove_Title,
+        "Mkvtoolnix_Source": Options.Mkvtoolnix_Source,
         "Audio_Track_Presets": Options.Audio_Track_Presets,
         "Subtitle_Track_Presets": Options.Subtitle_Track_Presets
     }
@@ -158,6 +160,8 @@ def read_option_file(option_file):
             Options.Mux_No_Date = get_data_from_json(json_data=data, attribute="Mux_No_Date", default_value=False)
             Options.Mux_Remove_Title = get_data_from_json(json_data=data, attribute="Mux_Remove_Title",
                                                           default_value=False)
+            Options.Mkvtoolnix_Source = get_data_from_json(json_data=data, attribute="Mkvtoolnix_Source",
+                                                           default_value="Bundled")
             Options.Audio_Track_Presets = get_data_from_json(json_data=data, attribute="Audio_Track_Presets",
                                                              default_value=[])
             Options.Subtitle_Track_Presets = get_data_from_json(json_data=data, attribute="Subtitle_Track_Presets",

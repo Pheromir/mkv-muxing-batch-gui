@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import struct
@@ -80,6 +81,11 @@ elif sys.platform == "linux" or sys.platform == "linux2":
 else:
     ToolsFolderPath = os.path.join(os.path.abspath(GlobalToolsFolderPath), Path('Other Systems'))
 AppDataFolderPath = create_app_data_folder()
+MKVTOOLNIX_SOURCE_BUNDLED = "Bundled"
+MKVTOOLNIX_SOURCE_INSTALLED = "Installed"
+PREFERRED_MKVTOOLNIX_SOURCE = MKVTOOLNIX_SOURCE_BUNDLED
+MKVMERGE_SOURCE = ""
+MKVPROPEDIT_SOURCE = ""
 MergeLogsFolderPath = os.path.join(os.path.abspath(AppDataFolderPath), Path('Logs'))
 MediaInfoFolderPath = os.path.join(os.path.abspath(AppDataFolderPath), Path('MediaInfo'))
 os.makedirs(MergeLogsFolderPath, exist_ok=True)
@@ -87,26 +93,64 @@ os.makedirs(MediaInfoFolderPath, exist_ok=True)
 delete_old_media_files()
 
 
-def get_mkvmerge_version():
-    with open(TestMkvmergeFilePath, "w+", encoding="UTF-8") as test_file:
+def get_tool_version(tool_path, test_file_path):
+    with open(test_file_path, "w+", encoding="UTF-8") as test_file:
         try:
-            command = add_double_quotation(MKVMERGE_PATH) + " -V"
-            mux_process = subprocess.run(command, shell=True, stdout=test_file, env=ENVIRONMENT)
+            command = add_double_quotation(tool_path) + " -V"
+            subprocess.run(command, shell=True, stdout=test_file, stderr=subprocess.DEVNULL, env=ENVIRONMENT)
         except:
             return ""
-    with open(TestMkvmergeFilePath, "r+", encoding="UTF-8") as test_file:
+    with open(test_file_path, "r+", encoding="UTF-8") as test_file:
         return test_file.readline().rstrip()
+
+
+def get_mkvmerge_version():
+    return get_tool_version(MKVMERGE_PATH, TestMkvmergeFilePath)
 
 
 def get_mkvpropedit_version():
-    with open(TestMkvpropeditFilePath, "w+", encoding="UTF-8") as test_file:
-        try:
-            command = add_double_quotation(MKVPROPEDIT_PATH) + " -V"
-            mux_process = subprocess.run(command, shell=True, stdout=test_file, env=ENVIRONMENT)
-        except:
-            return ""
-    with open(TestMkvpropeditFilePath, "r+", encoding="UTF-8") as test_file:
-        return test_file.readline().rstrip()
+    return get_tool_version(MKVPROPEDIT_PATH, TestMkvpropeditFilePath)
+
+
+def get_preferred_mkvtoolnix_source():
+    """"Bundled" (default) or "Installed", read directly from the settings file as Options is not loaded yet"""
+    try:
+        with open(SettingJsonInfoFilePath, "r", encoding="UTF-8") as setting_file:
+            source = json.load(setting_file).get("Mkvtoolnix_Source", MKVTOOLNIX_SOURCE_BUNDLED)
+    except Exception:
+        source = MKVTOOLNIX_SOURCE_BUNDLED
+    return source if source in (MKVTOOLNIX_SOURCE_BUNDLED, MKVTOOLNIX_SOURCE_INSTALLED) else MKVTOOLNIX_SOURCE_BUNDLED
+
+
+def get_installed_tool_candidates(tool_name):
+    # the windows installer of MKVToolNix does not add itself to PATH, so check its default folders first
+    candidates = []
+    if sys.platform == "win32":
+        for program_files in (os.environ.get("ProgramFiles"), os.environ.get("ProgramW6432"),
+                              os.environ.get("ProgramFiles(x86)")):
+            if program_files:
+                candidate = os.path.join(program_files, "MKVToolNix", tool_name + ".exe")
+                if os.path.isfile(candidate) and candidate not in candidates:
+                    candidates.append(candidate)
+    candidates.append(tool_name)  # system PATH
+    return candidates
+
+
+def find_tool(tool_name, bundled_path, test_file_path):
+    """returns (path, version, source) of the first working tool, the preferred source is tried first"""
+    bundled = [(bundled_path, MKVTOOLNIX_SOURCE_BUNDLED)]
+    installed = [(path, MKVTOOLNIX_SOURCE_INSTALLED) for path in get_installed_tool_candidates(tool_name)]
+    if PREFERRED_MKVTOOLNIX_SOURCE == MKVTOOLNIX_SOURCE_INSTALLED:
+        candidates = installed + bundled
+    else:
+        candidates = bundled + installed
+    for path, source in candidates:
+        version = get_tool_version(path, test_file_path)
+        if tool_name in version:
+            if source != PREFERRED_MKVTOOLNIX_SOURCE:
+                logging.warning(f"Could not use {PREFERRED_MKVTOOLNIX_SOURCE.lower()} {tool_name}, using {path}")
+            return path, version, source
+    return bundled_path, "", ""
 
 
 def update_enviro_if_not_windows():
@@ -183,30 +227,18 @@ try:
     MKVMERGE_PATH = os.path.join(os.path.abspath(ToolsFolderPath), "mkvmerge")
     ENVIRONMENT = os.environ.copy()
     update_enviro_if_not_windows()
-    MKVPROPEDIT_VERSION = get_mkvpropedit_version()
-    MKVMERGE_VERSION = get_mkvmerge_version()
-    if "mkvmerge" not in MKVMERGE_VERSION:
-        logging.warning("Could not use portable mkvmerge. Trying system version...")
-        MKVMERGE_PATH = "mkvmerge"
-        MKVMERGE_VERSION = get_mkvmerge_version()
-        if "mkvmerge" not in MKVMERGE_VERSION:
-            MKVMERGE_VERSION = "mkvmerge: not found!"
-            raise Exception("mkvmerge file! ")
-        else:
-            logging.info("mkvmerge OK")
-    else:
-        logging.info("mkvmerge OK")
-    if "mkvpropedit" not in MKVPROPEDIT_VERSION:
-        logging.warning("Could not use portable mkvpropedit. Trying system version...")
-        MKVPROPEDIT_PATH = "mkvpropedit"
-        MKVPROPEDIT_VERSION = get_mkvpropedit_version()
-        if "mkvpropedit" not in MKVPROPEDIT_VERSION:
-            MKVPROPEDIT_VERSION = "mkvpropedit: not found!"
-            raise Exception("mkvpropedit file! ")
-        else:
-            logging.info("mkvpropedit OK")
-    else:
-        logging.info("mkvpropedit OK")
+    PREFERRED_MKVTOOLNIX_SOURCE = get_preferred_mkvtoolnix_source()
+    MKVMERGE_PATH, MKVMERGE_VERSION, MKVMERGE_SOURCE = find_tool("mkvmerge", MKVMERGE_PATH, TestMkvmergeFilePath)
+    if MKVMERGE_VERSION == "":
+        MKVMERGE_VERSION = "mkvmerge: not found!"
+        raise Exception("mkvmerge file! ")
+    logging.info(f"mkvmerge OK ({MKVMERGE_SOURCE}): {MKVMERGE_PATH}")
+    MKVPROPEDIT_PATH, MKVPROPEDIT_VERSION, MKVPROPEDIT_SOURCE = find_tool("mkvpropedit", MKVPROPEDIT_PATH,
+                                                                          TestMkvpropeditFilePath)
+    if MKVPROPEDIT_VERSION == "":
+        MKVPROPEDIT_VERSION = "mkvpropedit: not found!"
+        raise Exception("mkvpropedit file! ")
+    logging.info(f"mkvpropedit OK ({MKVPROPEDIT_SOURCE}): {MKVPROPEDIT_PATH}")
 except Exception as e:
     logging.error(e)
     missing_files_message = MissingFilesMessage(error_message=str(e))

@@ -70,12 +70,26 @@ class SettingDialog(MyDialog):
             "<b>None</b>: store them uncompressed<br>"
             "<b>Zlib</b>: always compress with zlib")
         self.source_subtitle_compression_comboBox.setToolTipDuration(12000)
+        self.mkvtoolnix_source_label = QLabel("MKVToolNix: ")
+        self.mkvtoolnix_source_comboBox = QComboBox()
+        self.mkvtoolnix_source_comboBox.addItem("Bundled")
+        self.mkvtoolnix_source_comboBox.addItem("Installed")
+        self.mkvtoolnix_source_comboBox.setCurrentText(Options.Mkvtoolnix_Source)
+        self.mkvtoolnix_source_comboBox.setToolTip(
+            "<nobr>Which mkvmerge/mkvpropedit to use (takes effect on next launch)<br>"
+            "<b>Bundled</b>: the version shipped with this app<br>"
+            "<b>Installed</b>: an installed MKVToolNix (default install folder or PATH)<br>"
+            "If the chosen one is not available, the other one is used")
+        self.mkvtoolnix_source_comboBox.setToolTipDuration(12000)
         self.no_date_check_box = QCheckBox("Don't write muxing date")
         self.no_date_check_box.setToolTip("<nobr>Mux with <b>--no-date</b> so the muxing date is not stored in the output file")
         self.no_date_check_box.setToolTipDuration(12000)
         self.no_date_check_box.setChecked(bool(Options.Mux_No_Date))
         self.mux_options_layout.addWidget(self.source_subtitle_compression_label)
         self.mux_options_layout.addWidget(self.source_subtitle_compression_comboBox)
+        self.mux_options_layout.addSpacing(20)
+        self.mux_options_layout.addWidget(self.mkvtoolnix_source_label)
+        self.mux_options_layout.addWidget(self.mkvtoolnix_source_comboBox)
         self.mux_options_layout.addStretch(200)
         self.mux_options_layout.addWidget(self.no_date_check_box)
         self.mux_options_layout.setContentsMargins(0, 0, 0, 0)
@@ -151,6 +165,7 @@ class SettingDialog(MyDialog):
         Options.FavoritePresetId = self.preset_tab_comboBox.activated_preset_id
         Options.Source_Subtitle_Compression = self.source_subtitle_compression_comboBox.currentText()
         Options.Mux_No_Date = self.no_date_check_box.isChecked()
+        Options.Mkvtoolnix_Source = self.mkvtoolnix_source_comboBox.currentText()
         save_options()
 
     def change_current_preset_tab(self, tab_index):
